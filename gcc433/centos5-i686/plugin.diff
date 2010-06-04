@@ -1,0 +1,445 @@
+diff --git a/configure b/configure
+--- a/configure
++++ b/configure
+@@ -4368,7 +4368,7 @@
+ 
+ 
+ # Check for GMP and MPFR
+-gmplibs="-lmpfr -lgmp"
++gmplibs="-rdynamic -ldl -lmpfr -lgmp"
+ gmpinc=
+ have_gmp=no
+ 
+diff --git a/configure.ac b/configure.ac
+--- a/configure.ac
++++ b/configure.ac
+@@ -1139,7 +1139,7 @@
+ ACX_PROG_CMP_IGNORE_INITIAL
+ 
+ # Check for GMP and MPFR
+-gmplibs="-lmpfr -lgmp"
++gmplibs="-rdynamic -ldl -lmpfr -lgmp"
+ gmpinc=
+ have_gmp=no
+ 
+diff --git a/gcc/Makefile.in b/gcc/Makefile.in
+--- a/gcc/Makefile.in
++++ b/gcc/Makefile.in
+@@ -1147,6 +1147,7 @@
+ 	tree-cfg.o \
+ 	tree-cfgcleanup.o \
+ 	tree-chrec.o \
++	tree-plugin-pass.o \
+ 	tree-complex.o \
+ 	tree-data-ref.o \
+ 	tree-dfa.o \
+@@ -2013,6 +2014,7 @@
+    $(TM_H) $(GGC_H) $(TREE_H) $(RTL_H) $(TM_P_H) $(BASIC_BLOCK_H) \
+    $(TREE_FLOW_H) tree-pass.h $(TREE_DUMP_H) domwalk.h $(FLAGS_H) \
+    $(DIAGNOSTIC_H) $(TIMEVAR_H)
++tree-plugin-pass.o : tree-plugin-pass.c $(TREE_H) insn-flags.h
+ tree-ssa-forwprop.o : tree-ssa-forwprop.c $(CONFIG_H) $(SYSTEM_H) coretypes.h \
+    $(TM_H) $(GGC_H) $(TREE_H) $(RTL_H) $(TM_P_H) $(BASIC_BLOCK_H) \
+    $(TREE_FLOW_H) tree-pass.h $(TREE_DUMP_H) $(DIAGNOSTIC_H) $(TIMEVAR_H) \
+@@ -3120,6 +3122,7 @@
+   $(srcdir)/tree-ssa-structalias.c $(srcdir)/tree-parloops.c \
+   $(srcdir)/omp-low.c $(srcdir)/varpool.c \
+   $(srcdir)/targhooks.c $(out_file) $(srcdir)/passes.c $(srcdir)/cgraphunit.c \
++  $(srcdir)/tree-plugin-pass.c \
+   @all_gtfiles@
+ 
+ GTFILES_H = $(subst /,-, $(patsubst $(srcdir)/%,gt-%, $(patsubst %.c,%.h, \
+diff --git a/gcc/attribs.c b/gcc/attribs.c
+--- a/gcc/attribs.c
++++ b/gcc/attribs.c
+@@ -33,6 +33,7 @@
+ #include "target.h"
+ #include "langhooks.h"
+ #include "hashtab.h"
++#include "tree-plugin-pass.h"
+ 
+ static void init_attributes (void);
+ 
+diff --git a/gcc/c-common.c b/gcc/c-common.c
+--- a/gcc/c-common.c
++++ b/gcc/c-common.c
+@@ -668,6 +668,8 @@
+ 			      handle_error_attribute },
+   { "error",		      1, 1, true,  false, false,
+ 			      handle_error_attribute },
++  { "user", 		      1, 1, false, false, false,
++			      NULL },
+   { NULL,                     0, 0, false, false, false, NULL }
+ };
+ 
+diff --git a/gcc/c-opts.c b/gcc/c-opts.c
+--- a/gcc/c-opts.c
++++ b/gcc/c-opts.c
+@@ -40,6 +40,7 @@
+ #include "mkdeps.h"
+ #include "target.h"
+ #include "tm_p.h"
++#include "tree-plugin-pass.h"
+ 
+ #ifndef DOLLARS_IN_IDENTIFIERS
+ # define DOLLARS_IN_IDENTIFIERS true
+@@ -928,6 +929,14 @@
+ 	warn_overlength_strings = 1;
+       break;
+ 
++    case OPT_fplugin_:
++      plugin_name = arg;
++      break;
++
++    case OPT_fplugin_arg_:
++      plugin_arg = arg;
++      break;
++
+     case OPT_print_objc_runtime_info:
+       print_struct_values = 1;
+       break;
+@@ -1289,6 +1298,7 @@
+       pch_init ();
+       push_file_scope ();
+       c_parse_file ();
++      plugin_go ();
+       finish_file ();
+       pop_file_scope ();
+       /* And end the main input file, if the debug writer wants it  */
+diff --git a/gcc/c.opt b/gcc/c.opt
+--- a/gcc/c.opt
++++ b/gcc/c.opt
+@@ -693,6 +693,14 @@
+ C++ ObjC++
+ Downgrade conformance errors to warnings
+ 
++fplugin=
++C++ C Joined
++Plugin to load
++
++fplugin-arg=
++C++ C Joined
++Argument to pass to plugin
++
+ fpreprocessed
+ C ObjC C++ ObjC++
+ Treat the input file as already preprocessed
+diff --git a/gcc/cp/class.c b/gcc/cp/class.c
+--- a/gcc/cp/class.c
++++ b/gcc/cp/class.c
+@@ -37,6 +37,7 @@
+ #include "convert.h"
+ #include "cgraph.h"
+ #include "tree-dump.h"
++#include "tree-plugin-pass.h"
+ 
+ /* The number of nested classes being processed.  If we are not in the
+    scope of any class, this is zero.  */
+@@ -5263,6 +5264,7 @@
+ 
+   /* Finish debugging output for this type.  */
+   rest_of_type_compilation (t, ! LOCAL_CLASS_P (t));
++  plugin_finish_struct (t);
+ }
+ 
+ /* When T was built up, the member declarations were added in reverse
+diff --git a/gcc/cp/decl.c b/gcc/cp/decl.c
+--- a/gcc/cp/decl.c
++++ b/gcc/cp/decl.c
+@@ -53,6 +53,7 @@
+ #include "timevar.h"
+ #include "tree-flow.h"
+ #include "pointer-set.h"
++#include "tree-plugin-pass.h"
+ 
+ static tree grokparms (cp_parameter_declarator *, tree *);
+ static const char *redeclaration_error_message (tree, tree);
+@@ -11925,6 +11926,7 @@
+   if (!processing_template_decl)
+     {
+       struct language_function *f = DECL_SAVED_FUNCTION_DATA (fndecl);
++      plugin_cp_pre_genericize(fndecl);
+       cp_genericize (fndecl);
+       /* Clear out the bits we don't need.  */
+       f->x_current_class_ptr = NULL;
+diff --git a/gcc/flags.h b/gcc/flags.h
+--- a/gcc/flags.h
++++ b/gcc/flags.h
+@@ -226,6 +226,11 @@
+ extern unsigned HOST_WIDE_INT g_switch_value;
+ extern bool g_switch_set;
+ 
++/* Plugin to load */
++extern const char *plugin_name;
++/* Argument for plugin */
++extern const char *plugin_arg;
++
+ /* Values of the -falign-* flags: how much to align labels in code. 
+    0 means `use default', 1 means `don't align'.  
+    For each variable, there is an _log variant which is the power
+diff --git a/gcc/timevar.def b/gcc/timevar.def
+--- a/gcc/timevar.def
++++ b/gcc/timevar.def
+@@ -38,7 +38,7 @@
+ 
+ /* Time spent generating dump files.  */
+ DEFTIMEVAR (TV_DUMP                  , "dump files")
+-
++DEFTIMEVAR (TV_PLUGIN                , "plugin pass")
+ DEFTIMEVAR (TV_CGRAPH                , "callgraph construction")
+ DEFTIMEVAR (TV_CGRAPHOPT             , "callgraph optimization")
+ DEFTIMEVAR (TV_IPA_CONSTANT_PROP     , "ipa cp")
+diff --git a/gcc/toplev.c b/gcc/toplev.c
+--- a/gcc/toplev.c
++++ b/gcc/toplev.c
+@@ -99,6 +99,7 @@
+ #include "xcoffout.h"		/* Needed for external data
+ 				   declarations for e.g. AIX 4.x.  */
+ #endif
++#include "tree-plugin-pass.h"
+ 
+ static void general_init (const char *);
+ static void do_compile (void);
+@@ -328,6 +329,11 @@
+    flag_var_tracking == AUTODETECT_VALUE it will be set according
+    to optimize, debug_info_level and debug_hooks in process_options ().  */
+ int flag_var_tracking = AUTODETECT_VALUE;
++
++/* Plugin to load */
++const char *plugin_name = NULL;
++/* Argument for plugin */
++const char *plugin_arg = NULL;
+ 
+ /* True if the user has tagged the function with the 'section'
+    attribute.  */
+@@ -2216,6 +2222,7 @@
+ 
+   /* Language-specific end of compilation actions.  */
+   lang_hooks.finish ();
++  plugin_finish ();
+ }
+ 
+ /* Initialize the compiler, and compile the input file.  */
+diff --git a/gcc/tree-plugin-pass.c b/gcc/tree-plugin-pass.c
+new file mode 100644
+--- /dev/null
++++ b/gcc/tree-plugin-pass.c
+@@ -0,0 +1,186 @@
++#include "config.h"
++#include "system.h"
++#include "coretypes.h"
++#include "tm.h"
++#include "tree.h"
++#include "rtl.h"
++#include "tm_p.h"
++#include "hard-reg-set.h"
++#include "basic-block.h"
++#include "output.h"
++#include "errors.h"
++#include "flags.h"
++#include "function.h"
++#include "expr.h"
++#include "diagnostic.h"
++#include "tree-flow.h"
++#include "timevar.h"
++#include "tree-dump.h"
++#include "tree-pass.h"
++#include "toplev.h"
++#include "tree-plugin-pass.h"
++#include <dlfcn.h>
++
++/* name of the plugin entry point */
++static const char * str_entry_func = "gcc_plugin_init";
++static const char * str_cp_pre_genericize = "gcc_plugin_cp_pre_genericize";
++static const char * str_plugin_post_parse = "gcc_plugin_post_parse";
++static const char * str_plugin_pass = "gcc_plugin_pass";
++static const char * str_plugin_finish_struct = "gcc_plugin_finish_struct";
++static const char * str_plugin_finish = "gcc_plugin_finish";
++
++/* handle to the entry point */
++typedef int (*gcc_plugin_init)(const char *file, const char *arg, char **prior_pass);
++typedef int (*gcc_plugin_func)(void);
++typedef int (*gcc_plugin_cp_pre_genericize)(tree fndecl);
++
++static gcc_plugin_init fptr_plugin_init = NULL;
++static gcc_plugin_cp_pre_genericize fptr_plugin_cp_pre_genericize = NULL;
++static gcc_plugin_func fptr_plugin_post_parse = NULL;
++static gcc_plugin_func fptr_plugin_pass = NULL;
++static gcc_plugin_func fptr_plugin_finish = NULL;
++static gcc_plugin_cp_pre_genericize fptr_plugin_finish_struct = NULL;
++
++static void init(void);
++
++extern struct tree_opt_pass pass_plugin;
++
++/* Allows to see C++ AST before gimplification */
++void plugin_cp_pre_genericize (tree fndecl) {
++  if (!plugin_name) return;
++  init ();
++  if (fptr_plugin_cp_pre_genericize)
++    fptr_plugin_cp_pre_genericize (fndecl);
++}
++
++void plugin_finish_struct (tree t) {
++  if (!plugin_name) return;
++  init ();
++  if (fptr_plugin_finish_struct)
++    fptr_plugin_finish_struct (t);
++}
++
++void plugin_finish (void) {
++  if (!plugin_name) return;
++  init ();
++  if (fptr_plugin_finish)
++    fptr_plugin_finish ();
++}
++
++static bool
++gate_plugin_pass (void)
++{
++  if (plugin_name) {
++    init ();
++  }
++  return fptr_plugin_pass != 0;
++}
++
++/* Main function of the plugin pass
++   triggered by -plugin_name=
++ */
++static unsigned int
++execute_plugin_pass (void) 
++{
++  fptr_plugin_pass ();
++  return 0;
++}
++
++/* setup the plugin pass to run after prior_plugin_name */
++static bool position_pass (const char *prior_plugin_name, struct tree_opt_pass *pass) {
++    for (; pass; pass = pass->next) {
++        if (pass->name && !strcmp(pass->name, prior_plugin_name)) {
++            break;
++        /* yank out plugin pass from the hardcoded spot */
++        } else if (pass->sub && position_pass (prior_plugin_name, pass->sub)) {
++            return true;
++        } 
++    }
++    if (!pass) {
++        return false;
++    }
++    /* Not sure what the following 2 statements do
++       adopted them from next_pass_1 for consitency */
++    pass_plugin.todo_flags_start |= TODO_mark_first_instance;
++    pass_plugin.static_pass_number = -1;
++    pass_plugin.next = pass->next;
++    pass->next = &pass_plugin;
++    return true;
++}
++
++static void init(void) {
++  void *handle;
++  char *err;
++  union {
++    void *vptr;
++    gcc_plugin_init fptr_init;
++    gcc_plugin_cp_pre_genericize fptr_pre_genericize; 
++    gcc_plugin_cp_pre_genericize fptr_finish_struct; 
++    gcc_plugin_func fptr_plugin_post_parse;
++    gcc_plugin_func fptr_plugin_pass;
++    gcc_plugin_func fptr_plugin_finish;
++  } u;
++  char *prior_plugin_name = (char*) "useless";
++  if (fptr_plugin_init) return;    
++  handle = dlopen (plugin_name, RTLD_LAZY);
++  if (!handle) {
++    error( "Could not load %s. %s", plugin_name, dlerror());
++    plugin_name = NULL;
++    return;
++  }
++  dlerror();    /* Clear any existing error */
++  u.vptr = dlsym(handle, str_entry_func);
++  if ((err = dlerror()) != NULL)  {
++    error( "Could not call %s in %s. %s", str_entry_func, plugin_name, err);
++    return;
++  }
++  fptr_plugin_init = u.fptr_init;
++  u.vptr = dlsym(handle, str_plugin_post_parse);
++  fptr_plugin_post_parse = u.fptr_plugin_post_parse;
++  u.vptr = dlsym(handle, str_cp_pre_genericize); 
++  fptr_plugin_cp_pre_genericize = u.fptr_pre_genericize;
++  u.vptr = dlsym(handle, str_plugin_pass);
++  fptr_plugin_pass = u.fptr_plugin_pass;
++  u.vptr = dlsym(handle, str_plugin_finish_struct);
++  fptr_plugin_finish_struct = u.fptr_finish_struct;
++  u.vptr = dlsym(handle, str_plugin_finish);
++  fptr_plugin_finish = u.fptr_plugin_finish;
++
++  /* try to initialize the plugin or give up on it */
++  if (fptr_plugin_init (plugin_name, plugin_arg, &prior_plugin_name)) {
++    plugin_name = NULL;
++    return;
++  }
++  if (fptr_plugin_pass
++      && !position_pass (prior_plugin_name, all_lowering_passes)
++      && !position_pass (prior_plugin_name, all_ipa_passes)) {
++      error ("Failed to initiate plugin %s. Could not find the \"%s\" pass", 
++             plugin_name, prior_plugin_name); 
++      plugin_name = NULL;
++  }
++}
++
++/** silly name*/
++void plugin_go (void) {
++  if (!plugin_name) return;
++  init();
++  if (fptr_plugin_post_parse)
++    fptr_plugin_post_parse();
++}
++
++struct tree_opt_pass pass_plugin =
++{
++  "plugin",				/* name */
++  gate_plugin_pass,			/* gate */
++  execute_plugin_pass,			/* execute */
++  NULL,					/* sub */
++  NULL,					/* next */
++  0,					/* static_pass_number */
++  TV_PLUGIN,	              		/* tv_id */
++  PROP_gimple_any, /*PROP_cfg | PROP_ssa, */			/* properties_required */
++  0,					/* properties_provided */
++  0,					/* properties_destroyed */
++  0,					/* todo_flags_start */
++  TODO_dump_func,			/* todo_flags_finish */
++  0					/* letter */
++};
+diff --git a/gcc/tree-plugin-pass.h b/gcc/tree-plugin-pass.h
+new file mode 100644
+--- /dev/null
++++ b/gcc/tree-plugin-pass.h
+@@ -0,0 +1,27 @@
++/* Plugin support
++
++This file is part of GCC.
++
++GCC is free software; you can redistribute it and/or modify it under
++the terms of the GNU General Public License as published by the Free
++Software Foundation; either version 3, or (at your option) any later
++version.
++
++GCC is distributed in the hope that it will be useful, but WITHOUT ANY
++WARRANTY; without even the implied warranty of MERCHANTABILITY or
++FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
++for more details.
++
++You should have received a copy of the GNU General Public License
++along with GCC; see the file COPYING3.  If not see
++<http://www.gnu.org/licenses/>.  */
++
++#ifndef GCC_TREE_PLUGIN_PASS_H
++#define GCC_TREE_PLUGIN_PASS_H
++#include "tree.h"
++
++extern void plugin_go (void);
++extern void plugin_cp_pre_genericize (tree);
++extern void plugin_finish_struct (tree);
++extern void plugin_finish (void);
++#endif /* ! GCC_TREE_PLUGIN_PASS_H */

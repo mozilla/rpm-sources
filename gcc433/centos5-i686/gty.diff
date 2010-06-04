@@ -1,0 +1,1359 @@
+* * *
+
+diff --git a/gcc/basic-block.h b/gcc/basic-block.h
+--- a/gcc/basic-block.h
++++ b/gcc/basic-block.h
+@@ -114,8 +114,8 @@ typedef HOST_WIDEST_INT gcov_type;
+ typedef HOST_WIDEST_INT gcov_type;
+ 
+ /* Control flow edge information.  */
+-struct edge_def GTY(())
+-{
++struct GTY(())
++ edge_def {
+   /* The two blocks at the ends of the edge.  */
+   struct basic_block_def *src;
+   struct basic_block_def *dest;
+@@ -211,8 +211,8 @@ struct rtl_bb_info;
+    basic blocks.  */
+ 
+ /* Basic block information indexed by block number.  */
+-struct basic_block_def GTY((chain_next ("%h.next_bb"), chain_prev ("%h.prev_bb")))
+-{
++struct GTY((chain_next ("%h.next_bb"), chain_prev ("%h.prev_bb")))
++ basic_block_def {
+   /* The edges into and out of the block.  */
+   VEC(edge,gc) *preds;
+   VEC(edge,gc) *succs;
+@@ -231,8 +231,8 @@ struct basic_block_def GTY((chain_next (
+   struct basic_block_def *next_bb;
+ 
+   union basic_block_il_dependent {
+-      struct tree_bb_info * GTY ((tag ("0"))) tree;
+-      struct rtl_bb_info * GTY ((tag ("1"))) rtl;
++      struct tree_bb_info GTY ((tag ("0"))) * tree;
++      struct rtl_bb_info GTY ((tag ("1"))) * rtl;
+     } GTY ((desc ("((%1.flags & BB_RTL) != 0)"))) il;
+ 
+   /* Expected number of executions: calculated in profile.c.  */
+@@ -251,8 +251,8 @@ struct basic_block_def GTY((chain_next (
+   int flags;
+ };
+ 
+-struct rtl_bb_info GTY(())
+-{
++struct GTY(())
++ rtl_bb_info {
+   /* The first and last insns of the block.  */
+   rtx head_;
+   rtx end_;
+@@ -266,8 +266,8 @@ struct rtl_bb_info GTY(())
+   int visited;
+ };
+ 
+-struct tree_bb_info GTY(())
+-{
++struct GTY(())
++ tree_bb_info {
+   /* Pointers to the first and last trees of the block.  */
+   tree stmt_list;
+ 
+@@ -363,8 +363,8 @@ enum dom_state
+    The x_* prefixing is necessary because otherwise references to the
+    fields of this struct are interpreted as the defines for backward
+    source compatibility following the definition of this struct.  */
+-struct control_flow_graph GTY(())
+-{
++struct GTY(())
++ control_flow_graph {
+   /* Block pointers for the exit and entry of a function.
+      These are always the head and tail of the basic block list.  */
+   basic_block x_entry_block_ptr;
+diff --git a/gcc/bitmap.h b/gcc/bitmap.h
+--- a/gcc/bitmap.h
++++ b/gcc/bitmap.h
+@@ -41,8 +41,8 @@ typedef unsigned long BITMAP_WORD;
+ #define BITMAP_ELEMENT_ALL_BITS (BITMAP_ELEMENT_WORDS * BITMAP_WORD_BITS)
+ 
+ /* Obstack for allocating bitmaps and elements from.  */
+-typedef struct bitmap_obstack GTY (())
+-{
++typedef struct GTY (())
++ bitmap_obstack {
+   struct bitmap_element_def *elements;
+   struct bitmap_head_def *heads;
+   struct obstack GTY ((skip)) obstack;
+@@ -60,8 +60,8 @@ typedef struct bitmap_obstack GTY (())
+    bitmap_elt_clear_from to be implemented in unit time rather than
+    linear in the number of elements to be freed.  */
+ 
+-typedef struct bitmap_element_def GTY(())
+-{
++typedef struct GTY(())
++ bitmap_element_def {
+   struct bitmap_element_def *next;		/* Next element.  */
+   struct bitmap_element_def *prev;		/* Previous element.  */
+   unsigned int indx;			/* regno/BITMAP_ELEMENT_ALL_BITS.  */
+@@ -73,7 +73,7 @@ struct bitmap_descriptor;
+    statistics we need to add a bitmap descriptor pointer.  As it is
+    not collected, we can just GTY((skip)) it.   */
+ 
+-typedef struct bitmap_head_def GTY(()) {
++typedef struct GTY(())  bitmap_head_def {
+   bitmap_element *first;	/* First element in linked list.  */
+   bitmap_element *current;	/* Last element looked at.  */
+   unsigned int indx;		/* Index of last element looked at.  */
+diff --git a/gcc/c-common.h b/gcc/c-common.h
+--- a/gcc/c-common.h
++++ b/gcc/c-common.h
+@@ -184,7 +184,7 @@ enum c_tree_index
+ 
+ /* Identifier part common to the C front ends.  Inherits from
+    tree_identifier, despite appearances.  */
+-struct c_common_identifier GTY(())
++struct GTY(()) c_common_identifier 
+ {
+   struct tree_common common;
+   struct cpp_hashnode node;
+@@ -228,7 +228,7 @@ extern GTY(()) tree c_global_trees[CTI_M
+ 
+ /* In a RECORD_TYPE, a sorted array of the fields of the type, not a
+    tree for size reasons.  */
+-struct sorted_fields_type GTY(())
++struct GTY(()) sorted_fields_type 
+ {
+   int len;
+   tree GTY((length ("%h.len"))) elts[1];
+@@ -258,7 +258,7 @@ extern bool lang_fortran;
+ 
+ /* Information about a statement tree.  */
+ 
+-struct stmt_tree_s GTY(()) {
++struct GTY(())  stmt_tree_s {
+   /* The current statement list being collected.  */
+   tree x_cur_stmt_list;
+ 
+@@ -284,7 +284,7 @@ typedef struct stmt_tree_s *stmt_tree;
+ /* Global state pertinent to the current function.  Some C dialects
+    extend this structure with additional fields.  */
+ 
+-struct c_language_function GTY(()) {
++struct GTY(())  c_language_function {
+   /* While we are parsing the function, this contains information
+      about the statement-tree that we are building.  */
+   struct stmt_tree_s x_stmt_tree;
+diff --git a/gcc/cgraph.h b/gcc/cgraph.h
+--- a/gcc/cgraph.h
++++ b/gcc/cgraph.h
+@@ -51,7 +51,7 @@ extern const char * const cgraph_availab
+ /* Information about the function collected locally.
+    Available after function is analyzed.  */
+ 
+-struct cgraph_local_info GTY(())
++struct GTY(()) cgraph_local_info
+ {
+   /* Estimated stack frame consumption by the function.  */
+   HOST_WIDE_INT estimated_self_stack_size;
+@@ -91,7 +91,7 @@ struct cgraph_local_info GTY(())
+ /* Information about the function that needs to be computed globally
+    once compilation is finished.  Available only with -funit-at-time.  */
+ 
+-struct cgraph_global_info GTY(())
++struct GTY(()) cgraph_global_info
+ {
+   /* Estimated stack frame consumption by the function.  */
+   HOST_WIDE_INT estimated_stack_size;
+@@ -114,7 +114,7 @@ struct cgraph_global_info GTY(())
+ /* Information about the function that is propagated by the RTL backend.
+    Available only for functions that has been already assembled.  */
+ 
+-struct cgraph_rtl_info GTY(())
++struct GTY(()) cgraph_rtl_info
+ {
+    int preferred_incoming_stack_boundary;
+ };
+@@ -122,7 +122,7 @@ struct cgraph_rtl_info GTY(())
+ /* The cgraph data structure.
+    Each function decl has assigned cgraph_node listing callees and callers.  */
+ 
+-struct cgraph_node GTY((chain_next ("%h.next"), chain_prev ("%h.previous")))
++struct GTY((chain_next ("%h.next"), chain_prev ("%h.previous"))) cgraph_node
+ {
+   tree decl;
+   struct cgraph_edge *callees;
+@@ -186,7 +186,7 @@ struct cgraph_node GTY((chain_next ("%h.
+   int pid;
+ };
+ 
+-struct cgraph_edge GTY((chain_next ("%h.next_caller"), chain_prev ("%h.prev_caller")))
++struct GTY((chain_next ("%h.next_caller"), chain_prev ("%h.prev_caller"))) cgraph_edge
+ {
+   struct cgraph_node *caller;
+   struct cgraph_node *callee;
+@@ -220,7 +220,7 @@ DEF_VEC_ALLOC_P(cgraph_edge_p,heap);
+ /* The varpool data structure.
+    Each static variable decl has assigned varpool_node.  */
+ 
+-struct varpool_node GTY(())
++struct GTY(()) varpool_node
+ {
+   tree decl;
+   /* Pointer to the next function in varpool_nodes.  */
+@@ -251,7 +251,7 @@ struct varpool_node GTY(())
+ 
+ /* Every top level asm statement is put into a cgraph_asm_node.  */
+ 
+-struct cgraph_asm_node GTY(())
++struct GTY(()) cgraph_asm_node
+ {
+   /* Next asm node.  */
+   struct cgraph_asm_node *next;
+diff --git a/gcc/config/i386/i386.h b/gcc/config/i386/i386.h
+--- a/gcc/config/i386/i386.h
++++ b/gcc/config/i386/i386.h
+@@ -2435,7 +2435,7 @@ enum ix86_stack_slot
+ 
+ #define FASTCALL_PREFIX '@'
+ 
+-struct machine_function GTY(())
++struct GTY(()) machine_function 
+ {
+   struct stack_local_entry *stack_locals;
+   const char *some_ld_name;
+diff --git a/gcc/coretypes.h b/gcc/coretypes.h
+--- a/gcc/coretypes.h
++++ b/gcc/coretypes.h
+@@ -32,7 +32,10 @@ along with GCC; see the file COPYING3.  
+ #ifndef GCC_CORETYPES_H
+ #define GCC_CORETYPES_H
+ 
++/* Allow GTY to be overridded as an attribute */
++#ifndef GTY
+ #define GTY(x)  /* nothing - marker for gengtype */
++#endif
+ 
+ #ifndef USED_FOR_TARGET
+ 
+diff --git a/gcc/cp/cp-tree.h b/gcc/cp/cp-tree.h
+--- a/gcc/cp/cp-tree.h
++++ b/gcc/cp/cp-tree.h
+@@ -202,7 +202,7 @@ struct diagnostic_info;
+ 
+ /* Language-dependent contents of an identifier.  */
+ 
+-struct lang_identifier GTY(())
++struct GTY(()) lang_identifier 
+ {
+   struct c_common_identifier c_common;
+   cxx_binding *namespace_bindings;
+@@ -220,7 +220,7 @@ struct lang_identifier GTY(())
+ #define LANG_IDENTIFIER_CAST(NODE) \
+ 	((struct lang_identifier*)IDENTIFIER_NODE_CHECK (NODE))
+ 
+-struct template_parm_index_s GTY(())
++struct GTY(()) template_parm_index_s 
+ {
+   struct tree_common common;
+   int index;
+@@ -230,7 +230,7 @@ struct template_parm_index_s GTY(())
+ };
+ typedef struct template_parm_index_s template_parm_index;
+ 
+-struct ptrmem_cst GTY(())
++struct GTY(()) ptrmem_cst 
+ {
+   struct tree_common common;
+   /* This isn't used, but the middle-end expects all constants to have
+@@ -314,7 +314,7 @@ typedef struct ptrmem_cst * ptrmem_cst_t
+    is not important for this node.  */
+ #define OVL_USED(NODE)		TREE_USED (NODE)
+ 
+-struct tree_overload GTY(())
++struct GTY(()) tree_overload 
+ {
+   struct tree_common common;
+   tree function;
+@@ -346,7 +346,7 @@ struct tree_overload GTY(())
+ #define BASELINK_QUALIFIED_P(NODE) \
+   TREE_LANG_FLAG_0 (BASELINK_CHECK (NODE))
+ 
+-struct tree_baselink GTY(())
++struct GTY(()) tree_baselink 
+ {
+   struct tree_common common;
+   tree binfo;
+@@ -436,7 +436,7 @@ typedef enum cp_id_kind
+ #define DEFARG_INSTANTIATIONS(NODE) \
+   (((struct tree_default_arg *)DEFAULT_ARG_CHECK (NODE))->instantiations)
+ 
+-struct tree_default_arg GTY (())
++struct GTY (()) tree_default_arg 
+ {
+   struct tree_common common;
+   struct cp_token_cache *tokens;
+@@ -458,7 +458,7 @@ struct tree_default_arg GTY (())
+ #define STATIC_ASSERT_SOURCE_LOCATION(NODE) \
+   (((struct tree_static_assert *)STATIC_ASSERT_CHECK (NODE))->location)
+ 
+-struct tree_static_assert GTY (())
++struct GTY (()) tree_static_assert 
+ {
+   struct tree_common common;
+   tree condition;
+@@ -466,7 +466,7 @@ struct tree_static_assert GTY (())
+   location_t location;
+ };
+ 
+-struct tree_argument_pack_select GTY (())
++struct GTY (()) tree_argument_pack_select 
+ {
+   struct tree_common common;
+   tree argument_pack;
+@@ -507,7 +507,7 @@ typedef enum cp_trait_kind
+ #define TRAIT_EXPR_KIND(NODE) \
+   (((struct tree_trait_expr *)TRAIT_EXPR_CHECK (NODE))->kind)
+ 
+-struct tree_trait_expr GTY (())
++struct GTY (()) tree_trait_expr 
+ {
+   struct tree_common common;
+   tree type1;
+@@ -532,8 +532,9 @@ enum cp_tree_node_structure_enum {
+ };
+ 
+ /* The resulting tree type.  */
+-union lang_tree_node GTY((desc ("cp_tree_node_structure (&%h)"),
+-       chain_next ("(union lang_tree_node *)GENERIC_NEXT (&%h.generic)")))
++union GTY((desc ("cp_tree_node_structure (&%h)"), 
++           chain_next ("(union lang_tree_node *)GENERIC_NEXT (&%h.generic)")))
++lang_tree_node 
+ {
+   union tree_node GTY ((tag ("TS_CP_GENERIC"),
+ 			desc ("tree_node_structure (&%h)"))) generic;
+@@ -728,7 +729,7 @@ extern GTY(()) tree cp_global_trees[CPTI
+ 
+ /* Global state.  */
+ 
+-struct saved_scope GTY(())
++struct GTY(()) saved_scope 
+ {
+   VEC(cxx_saved_binding,gc) *old_bindings;
+   tree old_namespace;
+@@ -807,7 +808,7 @@ struct saved_scope GTY(())
+ 
+ extern GTY(()) struct saved_scope *scope_chain;
+ 
+-struct cxx_int_tree_map GTY(())
++struct GTY(()) cxx_int_tree_map 
+ {
+   unsigned int uid;
+   tree to;
+@@ -818,7 +819,7 @@ extern int cxx_int_tree_map_eq (const vo
+ 
+ /* Global state pertinent to the current function.  */
+ 
+-struct language_function GTY(())
++struct GTY(()) language_function 
+ {
+   struct c_language_function base;
+ 
+@@ -1058,7 +1059,7 @@ enum languages { lang_c, lang_cplusplus,
+ #define CLASSTYPE_VISIBILITY_SPECIFIED(TYPE)	\
+ 	DECL_VISIBILITY_SPECIFIED (TYPE_NAME (TYPE))
+ 
+-typedef struct tree_pair_s GTY (())
++typedef struct GTY (()) tree_pair_s 
+ {
+   tree purpose;
+   tree value;
+@@ -1070,7 +1071,7 @@ DEF_VEC_ALLOC_O (tree_pair_s,gc);
+ /* This is a few header flags for 'struct lang_type'.  Actually,
+    all but the first are used only for lang_type_class; they
+    are put in this structure to save space.  */
+-struct lang_type_header GTY(())
++struct GTY(()) lang_type_header 
+ {
+   BOOL_BITFIELD is_lang_type_class : 1;
+ 
+@@ -1097,7 +1098,7 @@ struct lang_type_header GTY(())
+    many (i.e., thousands) of classes can easily be generated.
+    Therefore, we should endeavor to keep the size of this structure to
+    a minimum.  */
+-struct lang_type_class GTY(())
++struct GTY(()) lang_type_class 
+ {
+   struct lang_type_header h;
+ 
+@@ -1172,13 +1173,13 @@ struct lang_type_class GTY(())
+   tree objc_info;
+ };
+ 
+-struct lang_type_ptrmem GTY(())
++struct GTY(()) lang_type_ptrmem 
+ {
+   struct lang_type_header h;
+   tree record;
+ };
+ 
+-struct lang_type GTY(())
++struct GTY(()) lang_type 
+ {
+   union lang_type_u
+   {
+@@ -1585,7 +1586,7 @@ struct lang_type GTY(())
+      || TREE_CODE (NODE) == CONST_DECL			\
+      || TREE_CODE (NODE) == USING_DECL))
+ 
+-struct lang_decl_flags GTY(())
++struct GTY(()) lang_decl_flags 
+ {
+   ENUM_BITFIELD(languages) language : 4;
+   unsigned global_ctor_p : 1;
+@@ -1645,7 +1646,7 @@ struct lang_decl_flags GTY(())
+ /* sorted_fields is sorted based on a pointer, so we need to be able
+    to resort it if pointers get rearranged.  */
+ 
+-struct lang_decl GTY(())
++struct GTY(()) lang_decl 
+ {
+   struct lang_decl_flags decl_flags;
+ 
+@@ -2505,7 +2506,7 @@ extern void decl_shadowed_for_var_insert
+ /* Abstract iterators for AGGR_INIT_EXPRs.  */
+ 
+ /* Structure containing iterator state.  */
+-typedef struct aggr_init_expr_arg_iterator_d GTY (())
++typedef struct GTY (()) aggr_init_expr_arg_iterator_d 
+ {
+   tree t;	/* the aggr_init_expr */
+   int n;	/* argument count */
+@@ -3858,7 +3859,7 @@ extern void init_reswords (void);
+    opname_tab[(int) MINUS_EXPR] == "-".  */
+ extern const char **opname_tab, **assignop_tab;
+ 
+-typedef struct operator_name_info_t GTY(())
++typedef struct GTY(()) operator_name_info_t 
+ {
+   /* The IDENTIFIER_NODE for the operator.  */
+   tree identifier;
+@@ -4043,7 +4044,7 @@ struct cp_declarator {
+ };
+ 
+ /* A level of template instantiation.  */
+-struct tinst_level GTY(())
++struct GTY(()) tinst_level 
+ {
+   /* The immediately deeper level in the chain.  */
+   struct tinst_level *next;
+@@ -4536,7 +4537,7 @@ extern int shared_member_p			(tree);
+ 
+ /* The representation of a deferred access check.  */
+ 
+-typedef struct deferred_access_check GTY(())
++typedef struct GTY(()) deferred_access_check 
+ {
+   /* The base class in which the declaration is referenced. */
+   tree binfo;
+diff --git a/gcc/cp/name-lookup.h b/gcc/cp/name-lookup.h
+--- a/gcc/cp/name-lookup.h
++++ b/gcc/cp/name-lookup.h
+@@ -31,7 +31,7 @@ typedef struct binding_entry_s *binding_
+ /* The type of a routine repeatedly called by binding_table_foreach.  */
+ typedef void (*bt_foreach_proc) (binding_entry, void *);
+ 
+-struct binding_entry_s GTY(())
++struct GTY(()) binding_entry_s 
+ {
+   binding_entry chain;
+   tree name;
+@@ -63,7 +63,7 @@ typedef struct cp_binding_level cxx_scop
+    currently being defined.  */
+ #define INHERITED_VALUE_BINDING_P(NODE) ((NODE)->value_is_inherited)
+ 
+-struct cxx_binding GTY(())
++struct GTY(()) cxx_binding 
+ {
+   /* Link to chain together various bindings for this name.  */
+   cxx_binding *previous;
+@@ -79,7 +79,7 @@ struct cxx_binding GTY(())
+ 
+ /* Datatype used to temporarily save C++ bindings (for implicit
+    instantiations purposes and like).  Implemented in decl.c.  */
+-typedef struct cxx_saved_binding GTY(())
++typedef struct GTY(()) cxx_saved_binding 
+ {
+   /* The name of the current binding.  */
+   tree identifier;
+@@ -139,7 +139,7 @@ typedef enum tag_scope {
+ 					   and [class.friend]/9.  */
+ } tag_scope;
+ 
+-typedef struct cp_class_binding GTY(())
++typedef struct GTY(()) cp_class_binding 
+ {
+   cxx_binding base;
+   /* The bound name.  */
+@@ -173,7 +173,7 @@ DEF_VEC_ALLOC_O(cp_class_binding,gc);
+ /* Note that the information in the `names' component of the global contour
+    is duplicated in the IDENTIFIER_GLOBAL_VALUEs of all identifiers.  */
+ 
+-struct cp_binding_level GTY(())
++struct GTY(()) cp_binding_level 
+   {
+     /* A chain of _DECL nodes for all variables, constants, functions,
+        and typedef types.  These are in the reverse of the order
+diff --git a/gcc/function.h b/gcc/function.h
+--- a/gcc/function.h
++++ b/gcc/function.h
+@@ -30,7 +30,7 @@ along with GCC; see the file COPYING3.  
+    The main insn-chain is saved in the last element of the chain,
+    unless the chain is empty.  */
+ 
+-struct sequence_stack GTY(())
++struct GTY(()) sequence_stack 
+ {
+   /* First and last insns in the chain of the saved sequence.  */
+   rtx first;
+@@ -38,7 +38,7 @@ struct sequence_stack GTY(())
+   struct sequence_stack *next;
+ };
+ 
+-struct emit_status GTY(())
++struct GTY(()) emit_status 
+ {
+   /* This is reset to LAST_VIRTUAL_REGISTER + 1 at the start of each function.
+      After rtl generation, it is 1 plus the largest register number used.  */
+@@ -93,7 +93,7 @@ struct emit_status GTY(())
+ 
+ #define REGNO_POINTER_ALIGN(REGNO) (cfun->emit->regno_pointer_align[REGNO])
+ 
+-struct expr_status GTY(())
++struct GTY(()) expr_status 
+ {
+   /* Number of units that we should eventually pop off the stack.
+      These are the arguments to function calls that have already returned.  */
+@@ -162,7 +162,7 @@ enum function_frequency {
+ /* This structure can save all the important global and static variables
+    describing the status of the current function.  */
+ 
+-struct function GTY(())
++struct GTY(()) function 
+ {
+   struct eh_status *eh;
+   struct expr_status *expr;
+diff --git a/gcc/gengtype-lex.l b/gcc/gengtype-lex.l
+--- a/gcc/gengtype-lex.l
++++ b/gcc/gengtype-lex.l
+@@ -187,9 +187,7 @@ EOID	[^[:alnum:]_]
+ }
+ 
+ ^{HWS}"#"{HWS}"define"{WS}"GTY(" /* do nothing */
+-{WS}"GTY"{WS}?"("	{
+-  error_at_line (&lexer_line, "stray GTY marker");
+-}
++
+ 
+ %%
+ 
+diff --git a/gcc/gengtype-parse.c b/gcc/gengtype-parse.c
+--- a/gcc/gengtype-parse.c
++++ b/gcc/gengtype-parse.c
+@@ -677,7 +677,6 @@ type (options_p *optsp, bool nested)
+ type (options_p *optsp, bool nested)
+ {
+   const char *s;
+-  bool is_union;
+   *optsp = 0;
+   switch (token ())
+     {
+@@ -694,14 +693,9 @@ type (options_p *optsp, bool nested)
+     case UNION:
+       {
+ 	options_p opts = 0;
+-
+-	is_union = (token() == UNION);
++        bool is_gty = 0;
++        bool is_union = (token() == UNION);
+ 	advance ();
+-
+-	if (token () == ID)
+-	  s = advance ();
+-	else
+-	  s = xasprintf ("anonymous:%s:%d", lexer_line.file, lexer_line.line);
+ 
+ 	/* Top-level structures that are not explicitly tagged GTY(())
+ 	   are treated as mere forward declarations.  This is because
+@@ -710,17 +704,35 @@ type (options_p *optsp, bool nested)
+ 	   that we can't handle.  */
+ 	if (nested || token () == GTY_TOKEN)
+ 	  {
++            is_gty = 1;
+ 	    opts = gtymarker_opt ();
+-	    if (token () == '{')
+-	      {
+-		pair_p fields;
+-		advance ();
+-		fields = struct_field_seq ();
+-		require ('}');
+-		return new_structure (s, is_union, &lexer_line, fields, opts);
+-	      }
+ 	  }
+-	else if (token () == '{')
++
++	if (token () == ID)
++	  s = advance ();
++	else
++	  s = xasprintf ("anonymous:%s:%d", lexer_line.file, lexer_line.line);
++
++        /* Unfortunately above GTY_TOKEN check does not capture the
++           typedef struct_type GTY case */
++	if (token () == GTY_TOKEN)
++	  {
++            is_gty = 1;
++	    opts = gtymarker_opt ();
++	  }
++        
++        if (is_gty) 
++          {
++            if (token () == '{')
++              {
++                pair_p fields;
++                advance ();
++                fields = struct_field_seq ();
++                require ('}');
++                return new_structure (s, is_union, &lexer_line, fields, opts);
++              }
++          } 
++        else if (token () == '{')
+ 	  consume_balanced ('{', '}');
+ 	if (opts)
+ 	  *optsp = opts;
+diff --git a/gcc/tree-flow.h b/gcc/tree-flow.h
+--- a/gcc/tree-flow.h
++++ b/gcc/tree-flow.h
+@@ -61,7 +61,7 @@ enum escape_type
+ 
+ /* Memory reference statistics for individual memory symbols,
+    collected during alias analysis.  */
+-struct mem_sym_stats_d GTY(())
++struct GTY(()) mem_sym_stats_d
+ {
+   /* Memory symbol.  */
+   tree var;
+@@ -107,7 +107,7 @@ DEF_VEC_ALLOC_P(mem_sym_stats_t, heap);
+ DEF_VEC_ALLOC_P(mem_sym_stats_t, heap);
+ 
+ /* Memory reference statistics collected during alias analysis.  */
+-struct mem_ref_stats_d GTY(())
++struct GTY(()) mem_ref_stats_d
+ {
+   /* Number of statements that make memory references.  */
+   long num_mem_stmts;
+@@ -136,7 +136,7 @@ struct mem_ref_stats_d GTY(())
+ /* Gimple dataflow datastructure. All publicly available fields shall have
+    gimple_ accessor defined in tree-flow-inline.h, all publicly modifiable
+    fields should have gimple_set accessor.  */
+-struct gimple_df GTY(())
++struct GTY(()) gimple_df
+ {
+   /* Array of all variables referenced in the function.  */
+   htab_t GTY((param_is (union tree_node))) referenced_vars;
+@@ -229,7 +229,7 @@ typedef struct
+ ---------------------------------------------------------------------------*/
+ 
+ /* Aliasing information for SSA_NAMEs representing pointer variables.  */
+-struct ptr_info_def GTY(())
++struct GTY(()) ptr_info_def
+ {
+   /* Nonzero if points-to analysis couldn't determine where this pointer
+      is pointing to.  */
+@@ -266,7 +266,7 @@ struct ptr_info_def GTY(())
+ ---------------------------------------------------------------------------*/
+ enum tree_ann_type { TREE_ANN_COMMON, VAR_ANN, FUNCTION_ANN, STMT_ANN };
+ 
+-struct tree_ann_common_d GTY(())
++struct GTY(()) tree_ann_common_d
+ {
+   /* Annotation type.  */
+   enum tree_ann_type type;
+@@ -329,7 +329,7 @@ enum noalias_state {
+ 
+ typedef VEC(tree,gc) *subvar_t;
+ 
+-struct var_ann_d GTY(())
++struct GTY(()) var_ann_d
+ {
+   struct tree_ann_common_d common;
+ 
+@@ -403,13 +403,13 @@ struct var_ann_d GTY(())
+ 
+ /* Container for variable annotation used by hashtable for annotations for
+    static variables.  */
+-struct static_var_ann_d GTY(())
++struct GTY(()) static_var_ann_d
+ {
+   struct var_ann_d ann;
+   unsigned int uid;
+ };
+ 
+-struct function_ann_d GTY(())
++struct GTY(()) function_ann_d
+ {
+   struct tree_ann_common_d common;
+ 
+@@ -478,7 +478,7 @@ typedef struct immediate_use_iterator_d
+ 
+ 
+ 
+-struct stmt_ann_d GTY(())
++struct GTY(()) stmt_ann_d
+ {
+   struct tree_ann_common_d common;
+ 
+@@ -508,7 +508,7 @@ struct stmt_ann_d GTY(())
+   unsigned has_volatile_ops : 1;
+ };
+ 
+-union tree_ann_d GTY((desc ("ann_type ((tree_ann_t)&%h)")))
++union GTY((desc ("ann_type ((tree_ann_t)&%h)"))) tree_ann_d
+ {
+   struct tree_ann_common_d GTY((tag ("TREE_ANN_COMMON"))) common;
+   struct var_ann_d GTY((tag ("VAR_ANN"))) vdecl;
+@@ -544,7 +544,7 @@ static inline bitmap addresses_taken (tr
+ /*---------------------------------------------------------------------------
+                   Structure representing predictions in tree level.
+ ---------------------------------------------------------------------------*/
+-struct edge_prediction GTY((chain_next ("%h.ep_next")))
++struct GTY((chain_next ("%h.ep_next"))) edge_prediction
+ {
+   struct edge_prediction *ep_next;
+   edge ep_edge;
+@@ -559,7 +559,7 @@ static inline void set_phi_nodes (basic_
+ /*---------------------------------------------------------------------------
+ 			      Global declarations
+ ---------------------------------------------------------------------------*/
+-struct int_tree_map GTY(())
++struct GTY(()) int_tree_map
+ {
+   
+   unsigned int uid;
+diff --git a/gcc/tree-ssa-operands.h b/gcc/tree-ssa-operands.h
+--- a/gcc/tree-ssa-operands.h
++++ b/gcc/tree-ssa-operands.h
+@@ -110,7 +110,7 @@ typedef struct voptype_d *voptype_p;
+    operand memory manager.  Operands are suballocated out of this block.  The
+    MEM array varies in size.  */
+    
+-struct ssa_operand_memory_d GTY((chain_next("%h.next")))
++struct GTY((chain_next("%h.next"))) ssa_operand_memory_d
+ {
+   struct ssa_operand_memory_d *next;
+   char mem[1];
+@@ -120,7 +120,7 @@ struct ssa_operand_memory_d GTY((chain_n
+ #define NUM_VOP_FREE_BUCKETS		29
+ 
+ /* Per-function operand caches.  */
+-struct ssa_operands GTY(()) {
++struct GTY(()) ssa_operands {
+    struct ssa_operand_memory_d *operand_memory;
+    unsigned operand_memory_index;
+    /* Current size of the operand memory buffer.  */
+diff --git a/gcc/tree.h b/gcc/tree.h
+--- a/gcc/tree.h
++++ b/gcc/tree.h
+@@ -367,7 +367,7 @@ enum omp_clause_code
+    fields.  */
+ union tree_ann_d;
+ 
+-struct tree_base GTY(())
++struct GTY(()) tree_base 
+ {
+   ENUM_BITFIELD(tree_code) code : 16;
+ 
+@@ -406,7 +406,7 @@ struct tree_base GTY(())
+   union tree_ann_d *ann;
+ };
+ 
+-struct tree_common GTY(())
++struct GTY(()) tree_common 
+ {
+   struct tree_base base;
+   tree chain;
+@@ -414,7 +414,7 @@ struct tree_common GTY(())
+ };
+ 
+ /* GIMPLE_MODIFY_STMT */
+-struct gimple_stmt GTY(())
++struct GTY(()) gimple_stmt 
+ {
+   struct tree_base base;
+   source_locus locus;
+@@ -1411,7 +1411,7 @@ extern void omp_clause_range_check_faile
+ 	== (unsigned HOST_WIDE_INT) TREE_INT_CST_HIGH (B))	\
+        && TREE_INT_CST_LOW (A) < TREE_INT_CST_LOW (B)))
+ 
+-struct tree_int_cst GTY(())
++struct GTY(()) tree_int_cst 
+ {
+   struct tree_common common;
+   double_int int_cst;
+@@ -1425,7 +1425,7 @@ struct real_value;
+ #define TREE_REAL_CST_PTR(NODE) (REAL_CST_CHECK (NODE)->real_cst.real_cst_ptr)
+ #define TREE_REAL_CST(NODE) (*TREE_REAL_CST_PTR (NODE))
+ 
+-struct tree_real_cst GTY(())
++struct GTY(()) tree_real_cst 
+ {
+   struct tree_common common;
+   struct real_value * real_cst_ptr;
+@@ -1437,7 +1437,7 @@ struct fixed_value;
+ #define TREE_FIXED_CST_PTR(NODE) (FIXED_CST_CHECK (NODE)->fixed_cst.fixed_cst_ptr)
+ #define TREE_FIXED_CST(NODE) (*TREE_FIXED_CST_PTR (NODE))
+ 
+-struct tree_fixed_cst GTY(())
++struct GTY(()) tree_fixed_cst 
+ {
+   struct tree_common common;
+   struct fixed_value * fixed_cst_ptr;
+@@ -1448,7 +1448,7 @@ struct tree_fixed_cst GTY(())
+ #define TREE_STRING_POINTER(NODE) \
+   ((const char *)(STRING_CST_CHECK (NODE)->string.str))
+ 
+-struct tree_string GTY(())
++struct GTY(()) tree_string 
+ {
+   struct tree_common common;
+   int length;
+@@ -1459,7 +1459,7 @@ struct tree_string GTY(())
+ #define TREE_REALPART(NODE) (COMPLEX_CST_CHECK (NODE)->complex.real)
+ #define TREE_IMAGPART(NODE) (COMPLEX_CST_CHECK (NODE)->complex.imag)
+ 
+-struct tree_complex GTY(())
++struct GTY(()) tree_complex 
+ {
+   struct tree_common common;
+   tree real;
+@@ -1469,7 +1469,7 @@ struct tree_complex GTY(())
+ /* In a VECTOR_CST node.  */
+ #define TREE_VECTOR_CST_ELTS(NODE) (VECTOR_CST_CHECK (NODE)->vector.elements)
+ 
+-struct tree_vector GTY(())
++struct GTY(()) tree_vector 
+ {
+   struct tree_common common;
+   tree elements;
+@@ -1493,7 +1493,7 @@ struct tree_vector GTY(())
+   ((tree) ((char *) (NODE) - sizeof (struct tree_common)))
+ #define GCC_IDENT_TO_HT_IDENT(NODE) (&((struct tree_identifier *) (NODE))->id)
+ 
+-struct tree_identifier GTY(())
++struct GTY(()) tree_identifier 
+ {
+   struct tree_common common;
+   struct ht_identifier id;
+@@ -1503,7 +1503,7 @@ struct tree_identifier GTY(())
+ #define TREE_PURPOSE(NODE) (TREE_LIST_CHECK (NODE)->list.purpose)
+ #define TREE_VALUE(NODE) (TREE_LIST_CHECK (NODE)->list.value)
+ 
+-struct tree_list GTY(())
++struct GTY(()) tree_list 
+ {
+   struct tree_common common;
+   tree purpose;
+@@ -1517,7 +1517,7 @@ struct tree_list GTY(())
+ 
+ #define TREE_VEC_ELT(NODE,I) TREE_VEC_ELT_CHECK (NODE, I)
+ 
+-struct tree_vec GTY(())
++struct GTY(()) tree_vec 
+ {
+   struct tree_common common;
+   int length;
+@@ -1560,7 +1560,7 @@ struct tree_vec GTY(())
+    element. INDEX can optionally design the position of VALUE: in arrays,
+    it is the index where VALUE has to be placed; in structures, it is the
+    FIELD_DECL of the member.  */
+-typedef struct constructor_elt_d GTY(())
++typedef struct GTY(()) constructor_elt_d 
+ {
+   tree index;
+   tree value;
+@@ -1569,7 +1569,7 @@ DEF_VEC_O(constructor_elt);
+ DEF_VEC_O(constructor_elt);
+ DEF_VEC_ALLOC_O(constructor_elt,gc);
+ 
+-struct tree_constructor GTY(())
++struct GTY(()) tree_constructor 
+ {
+   struct tree_common common;
+   VEC(constructor_elt,gc) *elts;
+@@ -1838,11 +1838,15 @@ enum omp_clause_default_kind
+ #define OMP_CLAUSE_DEFAULT_KIND(NODE) \
+   (OMP_CLAUSE_SUBCODE_CHECK (NODE, OMP_CLAUSE_DEFAULT)->omp_clause.subcode.default_kind)
+ 
+-struct tree_exp GTY(())
++struct GTY(()) tree_exp
+ {
+   struct tree_common common;
+   source_locus locus;
+   tree block;
++  /* according to adjust_field_tree_exp in gengtype.c operands may contain RTL
++     and that is why it's special...however that seems to be  no longer true
++     so special should be removed(along with desc?) and replaced with
++     length ("TREE_OPERAND_LENGTH ((tree) &%0)") */
+   tree GTY ((special ("tree_exp"),
+ 	     desc ("TREE_CODE ((tree) &%0)")))
+     operands[1];
+@@ -1899,7 +1903,7 @@ struct ptr_info_def;
+ 
+ /* Immediate use linking structure.  This structure is used for maintaining
+    a doubly linked list of uses of an SSA_NAME.  */
+-typedef struct ssa_use_operand_d GTY(())
++typedef struct GTY(()) ssa_use_operand_d 
+ {
+   struct ssa_use_operand_d* GTY((skip(""))) prev;
+   struct ssa_use_operand_d* GTY((skip(""))) next;
+@@ -1910,7 +1914,7 @@ typedef struct ssa_use_operand_d GTY(())
+ /* Return the immediate_use information for an SSA_NAME. */
+ #define SSA_NAME_IMM_USE_NODE(NODE) SSA_NAME_CHECK (NODE)->ssa_name.imm_uses
+ 
+-struct tree_ssa_name GTY(())
++struct GTY(()) tree_ssa_name 
+ {
+   struct tree_common common;
+ 
+@@ -1957,7 +1961,7 @@ struct tree_ssa_name GTY(())
+ #define PHI_BB(NODE)			PHI_NODE_CHECK (NODE)->phi.bb
+ #define PHI_ARG_IMM_USE_NODE(NODE, I)	PHI_NODE_ELT_CHECK (NODE, I).imm_use
+ 
+-struct phi_arg_d GTY(())
++struct GTY(()) phi_arg_d 
+ {
+   /* imm_use MUST be the first element in struct because we do some
+      pointer arithmetic with it.  See phi_arg_index_from_use.  */
+@@ -1965,7 +1969,7 @@ struct phi_arg_d GTY(())
+   tree def;
+ };
+ 
+-struct tree_phi_node GTY(())
++struct GTY(()) tree_phi_node 
+ {
+   struct tree_base common;
+   tree chain;
+@@ -1994,7 +1998,7 @@ struct tree_phi_node GTY(())
+ #define OMP_CLAUSE_OPERAND(NODE, I)				\
+ 	OMP_CLAUSE_ELT_CHECK (NODE, I)
+ 
+-struct tree_omp_clause GTY(())
++struct GTY(()) tree_omp_clause 
+ {
+   struct tree_common common;
+   enum omp_clause_code code;
+@@ -2060,7 +2064,7 @@ struct varray_head_tag;
+ 
+ #define BLOCK_SOURCE_LOCATION(NODE) (BLOCK_CHECK (NODE)->block.locus)
+ 
+-struct tree_block GTY(())
++struct GTY(()) tree_block 
+ {
+   struct tree_common common;
+ 
+@@ -2297,7 +2301,7 @@ struct tree_block GTY(())
+ 
+ struct die_struct;
+ 
+-struct tree_type GTY(())
++struct GTY(()) tree_type 
+ {
+   struct tree_common common;
+   tree values;
+@@ -2451,7 +2455,7 @@ struct tree_type GTY(())
+ #define BINFO_INHERITANCE_CHAIN(NODE) \
+ 	(TREE_BINFO_CHECK(NODE)->binfo.inheritance)
+ 
+-struct tree_binfo GTY (())
++struct GTY (()) tree_binfo 
+ {
+   struct tree_common common;
+ 
+@@ -2531,7 +2535,7 @@ struct function;
+     scope".  */
+ #define DECL_CONTEXT(NODE) (DECL_MINIMAL_CHECK (NODE)->decl_minimal.context)
+ #define DECL_FIELD_CONTEXT(NODE) (FIELD_DECL_CHECK (NODE)->decl_minimal.context)
+-struct tree_decl_minimal GTY(())
++struct GTY(()) tree_decl_minimal 
+ {
+   struct tree_common common;
+   location_t locus;
+@@ -2557,7 +2561,7 @@ struct tree_decl_minimal GTY(())
+    In general, given a pointer P with a symbol tag SMT, the alias set
+    of SMT should be the union of all the alias sets of the NMTs of
+    every SSA_NAME for P.  */
+-struct tree_memory_tag GTY(())
++struct GTY(()) tree_memory_tag 
+ {
+   struct tree_decl_minimal common;
+ 
+@@ -2577,7 +2581,7 @@ struct tree_memory_tag GTY(())
+ #define MTAG_GLOBAL(NODE) (TREE_MEMORY_TAG_CHECK (NODE)->mtag.is_global)
+ #define MTAG_ALIASES(NODE) (TREE_MEMORY_TAG_CHECK (NODE)->mtag.aliases)
+ 
+-struct tree_struct_field_tag GTY(())
++struct GTY(()) tree_struct_field_tag 
+ {
+   struct tree_memory_tag common;
+ 
+@@ -2607,7 +2611,7 @@ struct tree_struct_field_tag GTY(())
+ /* Memory Partition Tags (MPTs) group memory symbols under one
+    common name for the purposes of placing memory PHI nodes.  */
+ 
+-struct tree_memory_partition_tag GTY(())
++struct GTY(()) tree_memory_partition_tag 
+ {
+   struct tree_memory_tag common;
+   
+@@ -2763,7 +2767,7 @@ struct tree_memory_partition_tag GTY(())
+ #define DECL_NO_TBAA_P(DECL) \
+   DECL_COMMON_CHECK (DECL)->decl_common.no_tbaa_flag
+ 
+-struct tree_decl_common GTY(())
++struct GTY(()) tree_decl_common 
+ {
+   struct tree_decl_minimal common;
+   tree size;
+@@ -2864,7 +2868,7 @@ extern void decl_value_expr_insert (tree
+ /* In VAR_DECL and PARM_DECL nodes, nonzero means declared `register'.  */
+ #define DECL_REGISTER(NODE) (DECL_WRTL_CHECK (NODE)->decl_common.decl_flag_0)
+ 
+-struct tree_decl_with_rtl GTY(())
++struct GTY(()) tree_decl_with_rtl 
+ {
+   struct tree_decl_common common;
+   rtx rtl;
+@@ -2920,7 +2924,7 @@ struct tree_decl_with_rtl GTY(())
+ #define DECL_NONADDRESSABLE_P(NODE) \
+   (FIELD_DECL_CHECK (NODE)->decl_common.decl_flag_3)
+ 
+-struct tree_field_decl GTY(())
++struct GTY(()) tree_field_decl 
+ {
+   struct tree_decl_common common;
+ 
+@@ -2942,17 +2946,17 @@ struct tree_field_decl GTY(())
+    jumping into such a binding contour has been printed for this label.  */
+ #define DECL_ERROR_ISSUED(NODE) (LABEL_DECL_CHECK (NODE)->decl_common.decl_flag_0)
+ 
+-struct tree_label_decl GTY(())
++struct GTY(()) tree_label_decl 
+ {
+   struct tree_decl_with_rtl common;
+ };
+ 
+-struct tree_result_decl GTY(())
++struct GTY(()) tree_result_decl 
+ {
+   struct tree_decl_with_rtl common;
+ };
+ 
+-struct tree_const_decl GTY(())
++struct GTY(()) tree_const_decl 
+ {
+   struct tree_decl_with_rtl common;
+ };
+@@ -2965,7 +2969,7 @@ struct tree_const_decl GTY(())
+    where the data was actually passed.  */
+ #define DECL_INCOMING_RTL(NODE) (PARM_DECL_CHECK (NODE)->parm_decl.incoming_rtl)
+ 
+-struct tree_parm_decl GTY(())
++struct GTY(()) tree_parm_decl 
+ {
+   struct tree_decl_with_rtl common;
+   rtx incoming_rtl;
+@@ -3093,7 +3097,7 @@ extern void decl_restrict_base_insert (t
+    multiple translation units should be merged.  */
+ #define DECL_ONE_ONLY(NODE) (DECL_WITH_VIS_CHECK (NODE)->decl_with_vis.one_only)
+ 
+-struct tree_decl_with_vis GTY(())
++struct GTY(()) tree_decl_with_vis 
+ {
+  struct tree_decl_with_rtl common;
+  tree assembler_name;
+@@ -3200,7 +3204,7 @@ extern void decl_fini_priority_insert (t
+ #define DECL_THREAD_LOCAL_P(NODE) \
+   (VAR_DECL_CHECK (NODE)->decl_with_vis.tls_model != TLS_MODEL_NONE)
+ 
+-struct tree_var_decl GTY(())
++struct GTY(()) tree_var_decl 
+ {
+   struct tree_decl_with_vis common;
+ };
+@@ -3220,7 +3224,7 @@ struct tree_var_decl GTY(())
+    C++ also uses this field in namespaces, hence the DECL_NON_COMMON_CHECK.  */
+ #define DECL_VINDEX(NODE) (DECL_NON_COMMON_CHECK (NODE)->decl_non_common.vindex)
+ 
+-struct tree_decl_non_common GTY(())
++struct GTY(()) tree_decl_non_common 
+ 
+ {
+   struct tree_decl_with_vis common;
+@@ -3338,7 +3342,7 @@ struct tree_decl_non_common GTY(())
+    FUNCTION_DECL from non_common, or inherit non_common from FUNCTION_DECL,
+    which seemed a bit strange.  */
+ 
+-struct tree_function_decl GTY(())
++struct GTY(()) tree_function_decl 
+ {
+   struct tree_decl_non_common common;
+ 
+@@ -3381,7 +3385,7 @@ struct tree_function_decl GTY(())
+ #define TYPE_DECL_SUPPRESS_DEBUG(NODE) \
+   (TYPE_DECL_CHECK (NODE)->decl_common.decl_flag_2)
+ 
+-struct tree_type_decl GTY(())
++struct GTY(()) tree_type_decl 
+ {
+   struct tree_decl_non_common common;
+ 
+@@ -3398,16 +3402,18 @@ struct tree_type_decl GTY(())
+ #define STATEMENT_LIST_TAIL(NODE) \
+   (STATEMENT_LIST_CHECK (NODE)->stmt_list.tail)
+ 
+-struct tree_statement_list_node
+-  GTY ((chain_next ("%h.next"), chain_prev ("%h.prev")))
++struct 
++  GTY((chain_next ("%h.next"), chain_prev ("%h.prev")))
++  tree_statement_list_node
+ {
+   struct tree_statement_list_node *prev;
+   struct tree_statement_list_node *next;
+   tree stmt;
+ };
+ 
+-struct tree_statement_list
++struct 
+   GTY(())
++  tree_statement_list
+ {
+   struct tree_common common;
+   struct tree_statement_list_node *head;
+@@ -3422,7 +3428,7 @@ struct tree_statement_list
+ 
+ /* Defined and used in tree-ssa-pre.c.  */
+ 
+-struct tree_value_handle GTY(())
++struct GTY(()) tree_value_handle 
+ {
+   struct tree_common common;
+ 
+@@ -3439,8 +3445,9 @@ struct tree_value_handle GTY(())
+    It may be any of the structures declared above
+    for various types of node.  */
+ 
+-union tree_node GTY ((ptr_alias (union lang_tree_node),
+-		      desc ("tree_node_structure (&%h)")))
++union 
++  GTY ((ptr_alias (union lang_tree_node), desc ("tree_node_structure (&%h)")))
++  tree_node 
+ {
+   struct tree_base GTY ((tag ("TS_BASE"))) base;
+   struct tree_common GTY ((tag ("TS_COMMON"))) common;
+@@ -5197,7 +5204,7 @@ extern void vect_set_verbosity_level (co
+ 
+ /* In tree.c.  */
+ 
+-struct tree_map_base GTY(())
++struct GTY(()) tree_map_base 
+ {
+   tree from;
+ };
+@@ -5208,7 +5215,7 @@ extern int tree_map_base_marked_p (const
+ 
+ /* Map from a tree to another tree.  */
+ 
+-struct tree_map GTY(())
++struct GTY(()) tree_map 
+ {
+   struct tree_map_base base;
+   unsigned int hash;
+@@ -5221,7 +5228,7 @@ extern unsigned int tree_map_hash (const
+ 
+ /* Map from a tree to an int.  */
+ 
+-struct tree_int_map GTY(())
++struct GTY(()) tree_int_map 
+ {
+   struct tree_map_base base;
+   unsigned int to;
+@@ -5233,7 +5240,7 @@ struct tree_int_map GTY(())
+ 
+ /* Map from a tree to initialization/finalization priorities.  */
+ 
+-struct tree_priority_map GTY(())
++struct GTY(()) tree_priority_map 
+ {
+   struct tree_map_base base;
+   priority_type init;
+@@ -5281,14 +5288,14 @@ tree_operand_length (const_tree node)
+    defined by this point.  */
+ 
+ /* Structure containing iterator state.  */
+-typedef struct call_expr_arg_iterator_d GTY (())
++typedef struct GTY (()) call_expr_arg_iterator_d 
+ {
+   tree t;	/* the call_expr */
+   int n;	/* argument count */
+   int i;	/* next argument index */
+ } call_expr_arg_iterator;
+ 
+-typedef struct const_call_expr_arg_iterator_d GTY (())
++typedef struct GTY (()) const_call_expr_arg_iterator_d 
+ {
+   const_tree t;	/* the call_expr */
+   int n;	/* argument count */
+diff --git a/gcc/varray.h b/gcc/varray.h
+--- a/gcc/varray.h
++++ b/gcc/varray.h
+@@ -62,7 +62,7 @@ enum varray_data_enum {
+ };
+ 
+ /* Union of various array types that are used.  */
+-typedef union varray_data_tag GTY (()) {
++typedef union  GTY (()) varray_data_tag {
+   char			  GTY ((length ("%0.num_elements"),
+ 				tag ("VARRAY_DATA_C")))		vdt_c[1];
+   unsigned char		  GTY ((length ("%0.num_elements"),
+@@ -110,7 +110,7 @@ typedef union varray_data_tag GTY (()) {
+ } varray_data;
+ 
+ /* Virtual array of pointers header.  */
+-struct varray_head_tag GTY(()) {
++struct GTY(())  varray_head_tag {
+   size_t	num_elements;	/* Maximum element number allocated.  */
+   size_t        elements_used;  /* The number of elements used, if
+ 				   using VARRAY_PUSH/VARRAY_POP.  */
+diff --git a/gcc/vec.h b/gcc/vec.h
+--- a/gcc/vec.h
++++ b/gcc/vec.h
+@@ -466,7 +466,7 @@ typedef struct VEC(T,B) 				 		  \
+ } VEC(T,B)
+ 
+ #define VEC_T_GTY(T,B)							  \
+-typedef struct VEC(T,B) GTY(())				 		  \
++typedef struct GTY(()) VEC(T,B)                     	 		  \
+ {									  \
+   unsigned num;								  \
+   unsigned alloc;							  \
+@@ -475,7 +475,7 @@ typedef struct VEC(T,B) GTY(())				 		  
+ 
+ /* Derived vector type, user visible.  */
+ #define VEC_TA_GTY(T,B,A,GTY)						  \
+-typedef struct VEC(T,A) GTY						  \
++typedef struct GTY VEC(T,A)						  \
+ {									  \
+   VEC(T,B) base;							  \
+ } VEC(T,A)
+diff --git a/include/hashtab.h b/include/hashtab.h
+--- a/include/hashtab.h
++++ b/include/hashtab.h
+@@ -96,7 +96,7 @@ typedef void (*htab_free_with_arg) (void
+    functions mentioned below.  The size of this structure is subject to
+    change.  */
+ 
+-struct htab GTY(())
++struct GTY(()) htab
+ {
+   /* Pointer to hash function.  */
+   htab_hash hash_f;
+diff --git a/include/splay-tree.h b/include/splay-tree.h
+--- a/include/splay-tree.h
++++ b/include/splay-tree.h
+@@ -86,7 +86,7 @@ typedef void (*splay_tree_deallocate_fn)
+ typedef void (*splay_tree_deallocate_fn) (void *, void *);
+ 
+ /* The nodes in the splay tree.  */
+-struct splay_tree_node_s GTY(())
++struct GTY(()) splay_tree_node_s 
+ {
+   /* The key.  */
+   splay_tree_key GTY ((use_param1)) key;
+@@ -100,7 +100,7 @@ struct splay_tree_node_s GTY(())
+ };
+ 
+ /* The splay tree itself.  */
+-struct splay_tree_s GTY(())
++struct GTY(()) splay_tree_s 
+ {
+   /* The root of the tree.  */
+   splay_tree_node GTY ((use_params)) root;
+diff --git a/libcpp/include/cpplib.h b/libcpp/include/cpplib.h
+--- a/libcpp/include/cpplib.h
++++ b/libcpp/include/cpplib.h
+@@ -158,7 +158,7 @@ enum c_lang {CLK_GNUC89 = 0, CLK_GNUC99,
+ 	     CLK_GNUCXX, CLK_CXX98, CLK_GNUCXX0X, CLK_CXX0X, CLK_ASM};
+ 
+ /* Payload of a NUMBER, STRING, CHAR or COMMENT token.  */
+-struct cpp_string GTY(())
++struct GTY(()) cpp_string 
+ {
+   unsigned int len;
+   const unsigned char *text;
+@@ -188,7 +188,7 @@ enum cpp_token_fld_kind {
+ 
+ /* A preprocessing token.  This has been carefully packed and should
+    occupy 16 bytes on 32-bit hosts and 24 bytes on 64-bit hosts.  */
+-struct cpp_token GTY(())
++struct GTY(()) cpp_token 
+ {
+   source_location src_loc;	/* Location of first char of token.  */
+   ENUM_BITFIELD(cpp_ttype) type : CHAR_BIT;  /* token type */
+@@ -588,7 +588,7 @@ enum {
+    ends.  Also used to store CPP identifiers, which are a superset of
+    identifiers in the grammatical sense.  */
+ 
+-union _cpp_hashnode_value GTY(())
++union GTY(()) _cpp_hashnode_value
+ {
+   /* If a macro.  */
+   cpp_macro * GTY((tag ("NTV_MACRO"))) macro;
+@@ -600,7 +600,7 @@ union _cpp_hashnode_value GTY(())
+   unsigned short GTY ((tag ("NTV_ARGUMENT"))) arg_index;
+ };
+ 
+-struct cpp_hashnode GTY(())
++struct GTY(()) cpp_hashnode 
+ {
+   struct ht_identifier ident;
+   unsigned int is_directive : 1;
+diff --git a/libcpp/include/line-map.h b/libcpp/include/line-map.h
+--- a/libcpp/include/line-map.h
++++ b/libcpp/include/line-map.h
+@@ -54,7 +54,7 @@ typedef void *(*line_map_realloc) (void 
+    creation of this line map, SYSP is one for a system header, two for
+    a C system header file that therefore needs to be extern "C"
+    protected in C++, and zero otherwise.  */
+-struct line_map GTY(())
++struct GTY(()) line_map 
+ {
+   const char *to_file;
+   unsigned int to_line;
+@@ -68,7 +68,7 @@ struct line_map GTY(())
+ };
+ 
+ /* A set of chronological line_map structures.  */
+-struct line_maps GTY(())
++struct GTY(()) line_maps 
+ {
+   struct line_map * GTY ((length ("%h.used"))) maps;
+   unsigned int allocated;
+diff --git a/libcpp/include/symtab.h b/libcpp/include/symtab.h
+--- a/libcpp/include/symtab.h
++++ b/libcpp/include/symtab.h
+@@ -26,7 +26,7 @@ Foundation, 51 Franklin Street, Fifth Fl
+ /* This is what each hash table entry points to.  It may be embedded
+    deeply within another object.  */
+ typedef struct ht_identifier ht_identifier;
+-struct ht_identifier GTY(())
++struct GTY(()) ht_identifier 
+ {
+   const unsigned char *str;
+   unsigned int len;

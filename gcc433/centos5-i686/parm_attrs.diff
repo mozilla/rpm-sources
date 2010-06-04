@@ -1,0 +1,20 @@
+diff -r 5d25d9c3206c gcc/cp/decl.c
+--- a/gcc/cp/decl.c	Fri May 09 14:05:25 2008 -0700
++++ b/gcc/cp/decl.c	Fri May 09 14:16:19 2008 -0700
+@@ -1990,6 +1990,16 @@ duplicate_decls (tree newdecl, tree oldd
+ 	}
+       if (! types_match || new_defines_function)
+ 	{
++          /* dmandelin@mozilla.com -- Make sure parameter attributes
++             are retained from the initial declaration. */
++          tree oldarg, newarg;
++          for (oldarg = DECL_ARGUMENTS(olddecl), 
++                 newarg = DECL_ARGUMENTS(newdecl);
++               oldarg && newarg;
++               oldarg = TREE_CHAIN(oldarg), newarg = TREE_CHAIN(newarg)) {
++            DECL_ATTRIBUTES (newarg)
++              = (*targetm.merge_decl_attributes) (oldarg, newarg);
++          }
+ 	  /* These need to be copied so that the names are available.
+ 	     Note that if the types do match, we'll preserve inline
+ 	     info and other bits, but if not, we won't.  */

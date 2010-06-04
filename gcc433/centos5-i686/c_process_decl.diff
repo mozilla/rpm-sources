@@ -1,0 +1,80 @@
+diff --git a/gcc/c-decl.c b/gcc/c-decl.c
+--- a/gcc/c-decl.c
++++ b/gcc/c-decl.c
+@@ -61,6 +61,7 @@ along with GCC; see the file COPYING3.  
+ #include "except.h"
+ #include "langhooks-def.h"
+ #include "pointer-set.h"
++#include "tree-plugin-pass.h"
+ 
+ /* In grokdeclarator, distinguish syntactic contexts of declarators.  */
+ enum decl_context
+@@ -483,6 +484,9 @@ bind (tree name, tree decl, struct c_sco
+   b->prev = scope->bindings;
+   scope->bindings = b;
+ 
++  if (scope == file_scope) 
++      plugin_c_bind_file_scope (decl);
++
+   if (!name)
+     return;
+ 
+diff --git a/gcc/tree-plugin-pass.c b/gcc/tree-plugin-pass.c
+--- a/gcc/tree-plugin-pass.c
++++ b/gcc/tree-plugin-pass.c
+@@ -27,6 +27,7 @@ static const char * str_cp_pre_genericiz
+ static const char * str_plugin_post_parse = "gcc_plugin_post_parse";
+ static const char * str_plugin_pass = "gcc_plugin_pass";
+ static const char * str_plugin_finish_struct = "gcc_plugin_finish_struct";
++static const char * str_plugin_c_bind_file_scope = "gcc_plugin_c_bind_file_scope";
+ static const char * str_plugin_finish = "gcc_plugin_finish";
+ 
+ /* handle to the entry point */
+@@ -40,6 +41,7 @@ static gcc_plugin_func fptr_plugin_post_
+ static gcc_plugin_func fptr_plugin_pass = NULL;
+ static gcc_plugin_func fptr_plugin_finish = NULL;
+ static gcc_plugin_cp_pre_genericize fptr_plugin_finish_struct = NULL;
++static gcc_plugin_cp_pre_genericize fptr_plugin_c_bind_file_scope = NULL;
+ 
+ static void init(void);
+ 
+@@ -60,6 +62,13 @@ void plugin_finish_struct (tree t) {
+     fptr_plugin_finish_struct (t);
+ }
+ 
++void plugin_c_bind_file_scope (tree t) {
++  if (!plugin_name) return;
++  init ();
++  if (fptr_plugin_c_bind_file_scope)
++    fptr_plugin_c_bind_file_scope (t);
++}
++
+ void plugin_finish (void) {
+   if (!plugin_name) return;
+   init ();
+@@ -116,6 +125,7 @@ static void init(void) {
+     gcc_plugin_init fptr_init;
+     gcc_plugin_cp_pre_genericize fptr_pre_genericize; 
+     gcc_plugin_cp_pre_genericize fptr_finish_struct; 
++    gcc_plugin_cp_pre_genericize fptr_c_bind_file_scope; 
+     gcc_plugin_func fptr_plugin_post_parse;
+     gcc_plugin_func fptr_plugin_pass;
+     gcc_plugin_func fptr_plugin_finish;
+@@ -145,6 +155,8 @@ static void init(void) {
+   fptr_plugin_finish_struct = u.fptr_finish_struct;
+   u.vptr = dlsym(handle, str_plugin_finish);
+   fptr_plugin_finish = u.fptr_plugin_finish;
++  u.vptr = dlsym(handle, str_plugin_c_bind_file_scope);
++  fptr_plugin_c_bind_file_scope = u.fptr_c_bind_file_scope;
+ 
+   /* try to initialize the plugin or give up on it */
+   if (fptr_plugin_init (plugin_name, plugin_arg, &prior_plugin_name)) {
+diff --git a/gcc/tree-plugin-pass.h b/gcc/tree-plugin-pass.h
+--- a/gcc/tree-plugin-pass.h
++++ b/gcc/tree-plugin-pass.h
+@@ -24,4 +24,5 @@ extern void plugin_go (void);
+ extern void plugin_cp_pre_genericize (tree);
+ extern void plugin_finish_struct (tree);
+ extern void plugin_finish (void);
++extern void plugin_c_bind_file_scope (tree);
+ #endif /* ! GCC_TREE_PLUGIN_PASS_H */
