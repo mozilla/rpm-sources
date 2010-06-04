@@ -1,0 +1,1 @@
+../centos5-i686/mercurial-py26.spec
