@@ -1,0 +1,1 @@
+../centos5-i686/gcc45.spec
