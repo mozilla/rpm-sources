@@ -1,6 +1,6 @@
 Name: android-sdk
 Summary: An interpreted, interactive, object-oriented programming language.
-Version: r7
+Version: r8
 Release: 0moz1
 License: ???
 Group: Java
@@ -8,8 +8,9 @@ Group: Java
 # The original source package requires downloading additional pieces from
 # the Internet, which is difficult to do in RPM, and makes reproducability
 # impossible.
-Source0: android-sdk-r7.tar.gz
+Source0: android-sdk-r8.zip
 BuildRoot: %{_tmppath}/%{name}-%{version}-root
+AutoReqProv: no
 
 %define toplevel_dir %{name}-%{version}
 %define install_dir %{toplevel_dir}
@@ -21,7 +22,7 @@ BuildRoot: %{_tmppath}/%{name}-%{version}-root
 
 %prep
 rm -rf $RPM_BUILD_DIR/%{toplevel_dir}
-tar -zxf %{SOURCE0} >/dev/null
+unzip %{SOURCE0} >/dev/null
 
 %build
 # none
