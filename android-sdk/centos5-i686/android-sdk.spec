@@ -1,7 +1,7 @@
 Name: android-sdk
 Summary: An interpreted, interactive, object-oriented programming language.
 Version: r8
-Release: 0moz1
+Release: 0moz2
 License: ???
 Group: Java
 # This isn't the original source package but rather a Mozilla built tarball.
@@ -23,6 +23,8 @@ AutoReqProv: no
 %prep
 rm -rf $RPM_BUILD_DIR/%{toplevel_dir}
 unzip %{SOURCE0} >/dev/null
+find platforms/android-8 \
+    -name "*" -type f | xargs chmod 0644
 
 %build
 # none
