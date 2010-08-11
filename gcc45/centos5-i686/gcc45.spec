@@ -6,8 +6,8 @@
 
 Name: gcc45
 Summary: An interpreted, interactive, object-oriented programming language.
-Version: 4.5.0
-Release: 0moz2
+Version: 4.5.1
+Release: 0moz1
 License: GPL
 Group: Development/Languages
 Source: http://ftp.gnu.org/gnu/gcc/gcc-%{version}/gcc-%{version}.tar.bz2
