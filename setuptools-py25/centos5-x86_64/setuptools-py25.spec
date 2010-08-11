@@ -1,0 +1,1 @@
+../centos5-i686/setuptools-py25.spec
