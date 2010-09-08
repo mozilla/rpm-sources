@@ -1,6 +1,6 @@
 Summary: Modular Assembler
 Name: yasm
-Version: 1.0.1
+Version: 1.1.0
 Release: 1%{?dist}
 # See COPYING for the detail, there is quite a lot!
 License: BSD and (GPLv2+ or Artistic or LGPLv2+) and LGPLv2
@@ -71,6 +71,9 @@ Install this package if you need to rebuild applications that use yasm.
 
 
 %changelog
+* Mon Aug 30 2010 Nick Thomas  <nthomas@mozilla.com) - 1.1.0-1
+- updated to yasm-1.1.0
+
 * Fri May 21 2010 John Ford  <jford@mozilla.com> - 1.0.1-1
 - Updated to yasm-1.0.1
 
