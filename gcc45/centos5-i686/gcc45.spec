@@ -7,7 +7,7 @@
 Name: gcc45
 Summary: An interpreted, interactive, object-oriented programming language.
 Version: 4.5.1
-Release: 0moz1
+Release: 0moz2
 License: GPL
 Group: Development/Languages
 Source: http://ftp.gnu.org/gnu/gcc/gcc-%{version}/gcc-%{version}.tar.bz2
@@ -16,6 +16,7 @@ Source2: http://ftp.gnu.org/gnu/gmp/gmp-%{gmp_version}.tar.bz2
 Source3: http://www.multiprecision.org/mpc/download/mpc-%{mpc_version}.tar.gz
 # https://bugzilla.mozilla.org/attachment.cgi?id=457606
 Patch0: plugin_finish_decl.diff
+Patch1: linux64-ffi.diff
 BuildRoot: %{_tmppath}/%{name}-%{version}-root
 
 
@@ -26,6 +27,7 @@ Compiled with CXXFLAGS set to "-fPIC"
 %prep
 %setup -q -b 1 -b 2 -b 3 -n gcc-%{version}
 %patch0 -p0
+%patch1 -p0
 
 %build
 cd ../gmp-%{gmp_version}
