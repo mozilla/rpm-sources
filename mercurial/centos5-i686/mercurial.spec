@@ -1,6 +1,6 @@
 Name: mercurial
 Summary: Mercurial
-Version: 1.1.2
+Version: 1.6.3
 Release: 0moz1
 License: ???
 Group: Python
