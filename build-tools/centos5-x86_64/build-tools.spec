@@ -1,1 +1,0 @@
-../centos5-i686/build-tools.spec
