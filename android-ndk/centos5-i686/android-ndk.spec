@@ -1,14 +1,14 @@
 Name: android-ndk
 Summary: An interpreted, interactive, object-oriented programming language.
-Version: r4c
-Release: 0moz3
+Version: r5c
+Release: 0moz1
 License: ???
 Group: Java
 # This isn't the original source package but rather a Mozilla built tarball.
 # The original source package requires downloading additional pieces from
 # the Internet, which is difficult to do in RPM, and makes reproducability
 # impossible.
-Source0: android-ndk-r4c-0moz3.zip
+Source0: android-ndk-r5c-0moz1.tar.bz2
 BuildRoot: %{_tmppath}/%{name}-%{version}-root
 AutoReqProv: no
 
@@ -22,7 +22,7 @@ AutoReqProv: no
 
 %prep
 rm -rf $RPM_BUILD_DIR/%{toplevel_dir}
-unzip %{SOURCE0} >/dev/null
+tar xf %{SOURCE0} >/dev/null
 
 %build
 # none
