@@ -1,19 +1,21 @@
+%define debug_package %{nil}
+%define upstream_name android-ndk
+%define upstream_ver r5c
+%define install_dir_name %{upstream_name}-%{upstream_ver}
 Name: android-ndk5
 Summary: An interpreted, interactive, object-oriented programming language.
-Version: r5c
-Release: 0moz1
+Version: %{upstream_ver}
+Release: 0moz3
 License: ???
 Group: Java
-# This isn't the original source package but rather a Mozilla built tarball.
-# The original source package requires downloading additional pieces from
-# the Internet, which is difficult to do in RPM, and makes reproducability
-# impossible.
-Source0: android-ndk5-r5c-0moz1.tar.bz2
-BuildRoot: %{_tmppath}/%{name}-%{version}-root
+# This is the upstream NDK binary distribution tarball.  All modifications are
+# performed in this spec file's %build section.  If extra files need to be 
+# included for modifications, they should use Source1: <path> and be copied
+# as needed.
+Source0: http://dl.google.com/android/ndk/%{upstream_name}-%{upstream_ver}-linux-x86.tar.bz2
+BuildRoot:	%(mktemp -ud %{_tmppath}/%{name}-%{version}-%{release}-XXXXXX)
 AutoReqProv: no
 
-%define toplevel_dir %{name}-%{version}
-%define install_dir %{toplevel_dir}
 %define __os_install_post %{nil}
 %define __strip /bin/true
 
@@ -21,21 +23,19 @@ AutoReqProv: no
 %{name}
 
 %prep
-rm -rf $RPM_BUILD_DIR/%{toplevel_dir}
-tar xf %{SOURCE0} >/dev/null
+%setup -q -n android-ndk-%{upstream_ver}
 
 %build
-# none
+chmod -R a+rX *
 
 %install
-install -d -m 755 $RPM_BUILD_ROOT
-
-mkdir -p $RPM_BUILD_ROOT/tools/%{install_dir}
-rsync -av %{toplevel_dir}/ $RPM_BUILD_ROOT/tools/%{install_dir}
+rm -fr $RPM_BUILD_ROOT
+mkdir -p $RPM_BUILD_ROOT/tools/%{install_dir_name}
+cp -a * $RPM_BUILD_ROOT/tools/%{install_dir_name}
 
 %clean
 rm -fr $RPM_BUILD_ROOT
 
 %files
 %defattr(-, root, root)
-/tools/%{install_dir}
+/tools/%{install_dir_name}
