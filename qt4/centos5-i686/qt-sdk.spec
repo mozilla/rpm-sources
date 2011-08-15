@@ -1,7 +1,7 @@
 Name: qt-sdk
 Summary: %{name}
 Version: 4.6.3
-Release: 2010.04moz1
+Release: 2010.04moz2
 License: LGPL
 Group: QT
 #Source0: http://get.qt.nokia.com/qtsdk/qt-sdk-linux-x86-opensource-2010.04.bin
@@ -21,15 +21,15 @@ AutoReqProv: no
 
 %build
 # To create the tarball required, run:
-#su -c './qt-sdk-linux-x86-opensource-2010.04.bin --enable-components qtlibs --installdir /tools/qt-4.6.3 --mode text'
-#cd /tools
+#su -c './qt-sdk-linux-x86-opensource-2010.04.bin --enable-components qtlibs --installdir /builds/qt-4.6.3 --mode text'
+#cd /builds
 #tar qt-sdk-2010.04-4.6.3.tar.gz qt-4.6.3
 # Note: this installer does some weird things, so don't try to run it
 # directly in a spec file.  You will end up with a broken install
 
 %install
-mkdir -p $RPM_BUILD_ROOT/tools
-tar zxvf %{SOURCE0} -C $RPM_BUILD_ROOT/tools
+mkdir -p $RPM_BUILD_ROOT/builds
+tar zxvf %{SOURCE0} -C $RPM_BUILD_ROOT/builds
 mkdir -p $RPM_BUILD_ROOT/etc/ld.so.conf.d
 install %{SOURCE1} $RPM_BUILD_ROOT/etc/ld.so.conf.d/qt-%{version}.conf
 
@@ -44,5 +44,5 @@ ldconfig
 
 %files
 %defattr(-, root, root)
-/tools/qt-%{version}
+/builds/qt-%{version}
 /etc/ld.so.conf.d/qt-%{version}.conf
