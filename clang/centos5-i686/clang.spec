@@ -1,11 +1,10 @@
-%define REPO_REV 135723
+%define REPO_REV 141703
 Name: clang
 Summary: clang
 Version: 3.0
 Release: r%{REPO_REV}.moz0
 License: BSD
 Group: Development/Libraries
-Patch0: pr671711-hack.diff
 BuildRoot: %{_tmppath}/%{name}-%{version}-root
 
 %define toplevel_dir clang-%{version}-%{release}
@@ -18,9 +17,6 @@ clang snapshot packaged for mozilla build machines
 rm -rf $RPM_BUILD_DIR/%{toplevel_dir}
 svn co -r %{REPO_REV} http://llvm.org/svn/llvm-project/llvm/trunk $RPM_SOURCE_DIR/llvm
 svn co -r %{REPO_REV} http://llvm.org/svn/llvm-project/cfe/trunk $RPM_SOURCE_DIR/clang
-cd $RPM_SOURCE_DIR/clang
-%patch0 -p1
-cd -
 ln -sf ../../clang $RPM_SOURCE_DIR/llvm/tools
 mkdir -p %{toplevel_dir}
 
