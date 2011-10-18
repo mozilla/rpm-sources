@@ -1,4 +1,4 @@
-%define REPO_REV 141703
+%define REPO_REV 142296
 Name: clang
 Summary: clang
 Version: 3.0
@@ -31,23 +31,34 @@ TRIPLE=i686-pc-linux-gnu
 MULTILIB=""
 %endif
 
-# CC and CXX here are specific to our build machines
+CONFIGURE_OPTS="--enable-optimized \
+                --prefix=%{install_dir} \
+                --with-cxx-include-root=/tools/gcc-4.5/include/c++/4.5.2/ \
+                --with-cxx-include-arch=$TRIPLE \
+                $MULTILIB"
+
+mkdir stage1 stage2
+cd stage1
 # The *-include-* options make clang use the same c++ headers as the gcc 4.5
 # that we use.
 $RPM_SOURCE_DIR/llvm/configure \
-  --enable-optimized \
-  --prefix=%{install_dir} \
-  --with-cxx-include-root=/tools/gcc-4.5/include/c++/4.5.2/ \
-  --with-cxx-include-arch=$TRIPLE \
-  $MULTILIB \
+  $CONFIGURE_OPTS \
+  --with-optimize-option=-O0 \
   CC="/tools/gcc-4.5/bin/gcc -static-libgcc" \
   CXX="/tools/gcc-4.5/bin/g++ -static-libgcc -static-libstdc++"
+make -j4
+
+cd ../stage2
+$RPM_SOURCE_DIR/llvm/configure \
+  $CONFIGURE_OPTS \
+  CC="$RPM_BUILD_DIR/%{toplevel_dir}/stage1/Release+Asserts/bin/clang -static-libgcc -fgnu89-inline" \
+  CXX="$RPM_BUILD_DIR/%{toplevel_dir}/stage1/Release+Asserts/bin/clang++ -static-libgcc -static-libstdc++"
 make -j4
 
 %install
 install -d -m 755 $RPM_BUILD_ROOT
 mkdir -p $RPM_BUILD_ROOT/%{install_dir}
-cd %{toplevel_dir}
+cd %{toplevel_dir}/stage2
 make install DESTDIR=$RPM_BUILD_ROOT
 
 %clean
