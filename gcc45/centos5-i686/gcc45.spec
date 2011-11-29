@@ -29,6 +29,7 @@ Compiled with CXXFLAGS set to "-fPIC"
 %setup -q -b 1 -b 2 -b 3 -n gcc-%{version}
 %patch0 -p0
 %patch1 -p1
+%patch2 -p1
 
 %build
 cd ../gmp-%{gmp_version}
