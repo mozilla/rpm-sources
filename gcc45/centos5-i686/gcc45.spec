@@ -2,12 +2,12 @@
 %define mpc_version 0.8.1
 %define mpfr_version 2.4.2
 %define gmp_version 5.0.1
-%define gcc_prefix /tools/gcc-4.5-0moz2
+%define gcc_prefix /tools/gcc-4.5-0moz3
 
-Name: gcc45_0moz2
+Name: gcc45_0moz3
 Summary: An interpreted, interactive, object-oriented programming language.
 Version: 4.5.2
-Release: 0moz2
+Release: 0moz3
 License: GPL
 Group: Development/Languages
 Source: http://ftp.gnu.org/gnu/gcc/gcc-%{version}/gcc-%{version}.tar.bz2
@@ -17,6 +17,7 @@ Source3: http://www.multiprecision.org/mpc/download/mpc-%{mpc_version}.tar.gz
 # https://bugzilla.mozilla.org/attachment.cgi?id=457606
 Patch0: plugin_finish_decl.diff
 Patch1: pr49911.diff
+Patch2: r159628-r163231-r171807.patch
 BuildRoot: %{_tmppath}/%{name}-%{version}-root
 
 

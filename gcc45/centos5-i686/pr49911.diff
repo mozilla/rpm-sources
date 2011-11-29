@@ -1,6 +1,6 @@
 diff -ru gcc-4.5.2/gcc/double-int.c gcc-4.5.2-new/gcc/double-int.c
 --- gcc-4.5.2/gcc/double-int.c	2009-11-25 05:55:54.000000000 -0500
-+++ gcc-4.5.2-new/gcc/double-int.c	2011-08-17 16:41:13.000000000 -0400
++++ gcc-4.5.2-new/gcc/double-int.c	2011-11-29 10:20:27.625583810 -0500
 @@ -296,7 +296,12 @@
  tree
  double_int_to_tree (tree type, double_int cst)
@@ -17,7 +17,7 @@ diff -ru gcc-4.5.2/gcc/double-int.c gcc-4.5.2-new/gcc/double-int.c
  }
 diff -ru gcc-4.5.2/gcc/tree.c gcc-4.5.2-new/gcc/tree.c
 --- gcc-4.5.2/gcc/tree.c	2010-07-07 11:24:27.000000000 -0400
-+++ gcc-4.5.2-new/gcc/tree.c	2011-08-17 16:42:52.000000000 -0400
++++ gcc-4.5.2-new/gcc/tree.c	2011-11-29 10:20:27.626583813 -0500
 @@ -9750,7 +9750,7 @@
  tree
  upper_bound_in_type (tree outer, tree inner)
@@ -53,7 +53,7 @@ diff -ru gcc-4.5.2/gcc/tree.c gcc-4.5.2-new/gcc/tree.c
  /* Returns the smallest value obtainable by casting something in INNER type to
 diff -ru gcc-4.5.2/gcc/tree-vrp.c gcc-4.5.2-new/gcc/tree-vrp.c
 --- gcc-4.5.2/gcc/tree-vrp.c	2010-06-14 11:23:31.000000000 -0400
-+++ gcc-4.5.2-new/gcc/tree-vrp.c	2011-08-17 14:12:26.000000000 -0400
++++ gcc-4.5.2-new/gcc/tree-vrp.c	2011-11-29 10:20:27.628583820 -0500
 @@ -127,10 +127,10 @@
  static inline tree
  vrp_val_max (const_tree type)
