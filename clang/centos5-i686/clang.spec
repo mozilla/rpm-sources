@@ -1,4 +1,4 @@
-%define REPO_REV 145057
+%define REPO_REV 145194
 Name: clang
 Summary: clang
 Version: 3.0
@@ -8,7 +8,7 @@ Group: Development/Libraries
 BuildRoot: %{_tmppath}/%{name}-%{version}-root
 
 %define toplevel_dir clang-%{version}-%{release}
-%define install_dir /tools/%{name}-%{version}
+%define install_dir /tools/%{name}-%{version}-%{release}
 
 %description
 clang snapshot packaged for mozilla build machines
@@ -33,7 +33,7 @@ MULTILIB=""
 
 CONFIGURE_OPTS="--enable-optimized \
                 --prefix=%{install_dir} \
-                --with-cxx-include-root=/tools/gcc-4.5/include/c++/4.5.2/ \
+                --with-cxx-include-root=/tools/gcc-4.5-0moz3/include/c++/4.5.2/ \
                 --with-cxx-include-arch=$TRIPLE \
                 $MULTILIB"
 
@@ -44,8 +44,8 @@ cd stage1
 $RPM_SOURCE_DIR/llvm/configure \
   $CONFIGURE_OPTS \
   --with-optimize-option=-O0 \
-  CC="/tools/gcc-4.5/bin/gcc -static-libgcc" \
-  CXX="/tools/gcc-4.5/bin/g++ -static-libgcc -static-libstdc++"
+  CC="/tools/gcc-4.5-0moz3/bin/gcc -static-libgcc" \
+  CXX="/tools/gcc-4.5-0moz3/bin/g++ -static-libgcc -static-libstdc++"
 make -j4
 
 cd ../stage2
