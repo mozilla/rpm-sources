@@ -2,10 +2,10 @@
 # package. Include the version in the same so we can have multiple versions of
 # it installed.
 %define real_name binutils
-Version: 2.21.1
+Version: 2.22
 Name: moz_%{real_name}_%{version}
 Summary: %{real_name}
-Release: 1
+Release: 0moz1
 License: GPL
 Group: C
 Source0: http://ftp.gnu.org/gnu/%{real_name}/%{real_name}-%{version}.tar.bz2
@@ -43,5 +43,8 @@ rm -fr $RPM_BUILD_ROOT
 %{install_dir}
 
 %changelog
+* Mon Dec 19 2011 Chris AtLee <catlee@mozilla.com> 2.22-0moz1
+- Updated to binutils 2.22
+
 * Wed Jul 20 2011 Chris AtLee <catlee@mozilla.com> 2.21.1-1
 - Initial spec for binutils 2.21.1
