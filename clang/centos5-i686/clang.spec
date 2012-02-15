@@ -1,4 +1,4 @@
-%define REPO_REV 149163
+%define REPO_REV 150477
 Name: clang
 Summary: clang
 Version: 3.0
@@ -17,25 +17,17 @@ clang snapshot packaged for mozilla build machines
 rm -rf $RPM_BUILD_DIR/%{toplevel_dir}
 svn co -r %{REPO_REV} http://llvm.org/svn/llvm-project/llvm/trunk $RPM_SOURCE_DIR/llvm
 svn co -r %{REPO_REV} http://llvm.org/svn/llvm-project/cfe/trunk $RPM_SOURCE_DIR/clang
+svn co -r %{REPO_REV} http://llvm.org/svn/llvm-project/compiler-rt/trunk $RPM_SOURCE_DIR/compiler-rt
 ln -sf ../../clang $RPM_SOURCE_DIR/llvm/tools
+ln -sf ../../compiler-rt $RPM_SOURCE_DIR/llvm/projects
 mkdir -p %{toplevel_dir}
 
 %build
 cd %{toplevel_dir}
 
-%ifarch x86_64
-TRIPLE=x86_64-unknown-linux-gnu
-MULTILIB="--with-cxx-include-32bit-dir=32"
-%else
-TRIPLE=i686-pc-linux-gnu
-MULTILIB=""
-%endif
-
 CONFIGURE_OPTS="--enable-optimized \
                 --prefix=%{install_dir} \
-                --with-cxx-include-root=/tools/gcc-4.5-0moz3/include/c++/4.5.2/ \
-                --with-cxx-include-arch=$TRIPLE \
-                $MULTILIB"
+                --with-gcc-toolchain=/tools/gcc-4.5-0moz3"
 
 mkdir stage1 stage2
 cd stage1
