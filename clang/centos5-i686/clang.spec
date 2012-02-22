@@ -1,4 +1,4 @@
-%define REPO_REV 150477
+%define REPO_REV 150886
 Name: clang
 Summary: clang
 Version: 3.0
