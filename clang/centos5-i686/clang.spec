@@ -2,9 +2,10 @@
 Name: clang
 Summary: clang
 Version: 3.0
-Release: r%{REPO_REV}.moz0
+Release: r%{REPO_REV}.moz1
 License: BSD
 Group: Development/Libraries
+Patch0: old-ld-hack.patch
 BuildRoot: %{_tmppath}/%{name}-%{version}-root
 
 %define toplevel_dir clang-%{version}-%{release}
@@ -20,6 +21,9 @@ svn co -r %{REPO_REV} http://llvm.org/svn/llvm-project/cfe/trunk $RPM_SOURCE_DIR
 svn co -r %{REPO_REV} http://llvm.org/svn/llvm-project/compiler-rt/trunk $RPM_SOURCE_DIR/compiler-rt
 ln -sf ../../clang $RPM_SOURCE_DIR/llvm/tools
 ln -sf ../../compiler-rt $RPM_SOURCE_DIR/llvm/projects
+cd $RPM_SOURCE_DIR/llvm
+%patch0 -p1
+cd -
 mkdir -p %{toplevel_dir}
 
 %build
