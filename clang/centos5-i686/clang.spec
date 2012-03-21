@@ -1,8 +1,8 @@
-%define REPO_REV 151655
+%define REPO_REV 152341
 Name: clang
 Summary: clang
 Version: 3.0
-Release: r%{REPO_REV}.moz1
+Release: r%{REPO_REV}.moz0
 License: BSD
 Group: Development/Libraries
 Patch0: old-ld-hack.patch
