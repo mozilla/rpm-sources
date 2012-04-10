@@ -1,15 +1,16 @@
-%define REPO_REV 152341
-Name: clang
+%define REPO_REV 154343
+%define MOZ_VER moz0
+Name: clang_%{REPO_REV}_%{MOZ_VER}
 Summary: clang
 Version: 3.0
-Release: r%{REPO_REV}.moz0
+Release: r%{REPO_REV}.%{MOZ_VER}
 License: BSD
 Group: Development/Libraries
 Patch0: old-ld-hack.patch
 BuildRoot: %{_tmppath}/%{name}-%{version}-root
 
 %define toplevel_dir clang-%{version}-%{release}
-%define install_dir /tools/%{name}-%{version}-%{release}
+%define install_dir /tools/clang-%{version}-%{release}
 
 %description
 clang snapshot packaged for mozilla build machines
