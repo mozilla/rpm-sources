@@ -8,7 +8,7 @@
 %define mpfr_ver 3.0.1
 %define gdb_ver 6.6a
 %define ndk_dir %{ndk_name}-%{ndk_ver}
-Name: android-ndk
+Name: %{ndk_name}
 Summary: An interpreted, interactive, object-oriented programming language.
 Version: %{ndk_ver}
 Release: 0moz1
