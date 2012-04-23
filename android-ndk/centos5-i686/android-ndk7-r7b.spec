@@ -1,3 +1,4 @@
+%define upstream_name android-ndk
 %define ndk_name android-ndk7
 %define ndk_ver r7b
 %define gcc_ver 4.6.3
@@ -7,14 +8,14 @@
 %define mpc_ver 0.9
 %define mpfr_ver 3.0.1
 %define gdb_ver 6.6a
-%define ndk_dir %{ndk_name}-%{ndk_ver}
+%define ndk_dir %{upstream_name}-%{ndk_ver}
 Name: %{ndk_name}
 Summary: An interpreted, interactive, object-oriented programming language.
 Version: %{ndk_ver}
-Release: 0moz1
+Release: 0moz2
 License: ???
 Group: Java
-Source0: http://dl.google.com/android/ndk/%{ndk_name}-%{ndk_ver}-linux-x86.tar.bz2
+Source0: http://dl.google.com/android/ndk/%{upstream_name}-%{ndk_ver}-linux-x86.tar.bz2
 Source1: ndk-build-%{ndk_ver}.tar.bz2
 Source2: ftp://ftp.gnu.org/gnu/gcc/gcc-%{gcc_ver}/gcc-%{gcc_ver}.tar.bz2
 Source3: ftp://sourceware.org/pub/binutils/%{binutils_type}/binutils-%{binutils_ver}.tar.bz2
