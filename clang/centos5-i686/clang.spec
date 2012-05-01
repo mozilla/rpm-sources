@@ -7,6 +7,7 @@ Release: r%{REPO_REV}.%{MOZ_VER}
 License: BSD
 Group: Development/Libraries
 Patch0: old-ld-hack.patch
+Patch1: compiler-rt-gnu89-inline.patch
 BuildRoot: %{_tmppath}/%{name}-%{version}-root
 
 %define toplevel_dir clang-%{version}-%{release}
@@ -24,6 +25,9 @@ ln -sf ../../clang $RPM_SOURCE_DIR/llvm/tools
 ln -sf ../../compiler-rt $RPM_SOURCE_DIR/llvm/projects
 cd $RPM_SOURCE_DIR/llvm
 %patch0 -p1
+cd -
+cd $RPM_SOURCE_DIR/compiler-rt
+%patch1 -p0
 cd -
 mkdir -p %{toplevel_dir}
 
