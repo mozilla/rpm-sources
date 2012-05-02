@@ -18,8 +18,11 @@ clang snapshot packaged for mozilla build machines
 
 %prep
 rm -rf $RPM_BUILD_DIR/%{toplevel_dir}
+rm -rf $RPM_SOURCE_DIR/llvm
 svn co -r %{REPO_REV} http://llvm.org/svn/llvm-project/llvm/trunk $RPM_SOURCE_DIR/llvm
+rm -rf $RPM_SOURCE_DIR/clang
 svn co -r %{REPO_REV} http://llvm.org/svn/llvm-project/cfe/trunk $RPM_SOURCE_DIR/clang
+rm -rf $RPM_SOURCE_DIR/compiler-rt
 svn co -r %{REPO_REV} http://llvm.org/svn/llvm-project/compiler-rt/trunk $RPM_SOURCE_DIR/compiler-rt
 ln -sf ../../clang $RPM_SOURCE_DIR/llvm/tools
 ln -sf ../../compiler-rt $RPM_SOURCE_DIR/llvm/projects
