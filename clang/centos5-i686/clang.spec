@@ -1,4 +1,4 @@
-%define REPO_REV 155417
+%define REPO_REV 158158
 %define MOZ_VER moz0
 Name: clang_%{REPO_REV}_%{MOZ_VER}
 Summary: clang
